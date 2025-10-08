@@ -7,13 +7,29 @@ public class Test : MonoBehaviour
     {
 
     }
+    [SerializeField]
+    private GameObject cubePrefab;
+    [SerializeField]
+    private GameObject spherePrefab;
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.Z))
-        {
-            Debug.Log("La touche W est maintenue");
-        }
+       //si la touche 1 est pressée
+       if (Input.GetKeyDown("[1]"))
+       {
+           // créer game object cube prefb
+              Instantiate(cubePrefab, new Vector3(0, 0, 0), Quaternion.identity);
+              
+       }
+       //si la touche 2 est pressée
+       if (Input.GetKeyDown("[2]"))
+       {
+           // créer game object cube prefab
+           
+           Instantiate(spherePrefab, new Vector3(0, 0, 0), Quaternion.identity);
+              
+       }
+           
     }
 }
