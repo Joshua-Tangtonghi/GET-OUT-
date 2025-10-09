@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 public class Test : MonoBehaviour
 {
@@ -20,6 +22,7 @@ public class Test : MonoBehaviour
        {
            // créer game object cube prefb
               Instantiate(cubePrefab, new Vector3(0, 0, 0), Quaternion.identity);
+              Process.Start("adb", "shell input tap 500 1000");
               
        }
        //si la touche 2 est pressée
@@ -28,6 +31,7 @@ public class Test : MonoBehaviour
            // créer game object cube prefab
            
            Instantiate(spherePrefab, new Vector3(0, 0, 0), Quaternion.identity);
+           Debug.Log(Input.GetKeyDown("[2]"));
               
        }
            

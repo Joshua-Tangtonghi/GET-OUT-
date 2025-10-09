@@ -1,40 +1,59 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
+using System.IO;
 
+// Solution alternative qui fonctionne avec Unity Remote
 public class TabletScript : MonoBehaviour
 {
     public TMP_Text phaseDisplayText;
-    private Touch theTouch;
+    private string flagFilePath;
     private float timeTouchEnded;
     private float displayTime = 0.5f;
+    private float lastCheckTime = 0f;
+    private float checkInterval = 1f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        flagFilePath = Path.Combine(Application.persistentDataPath, "flag.txt");
+        phaseDisplayText.text = "En attente...";
+        Debug.Log("Chemin du fichier flag : " + flagFilePath);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (Input.touchCount > 0)
+       
+        if (Time.time - lastCheckTime > checkInterval)
         {
-            theTouch = Input.GetTouch(0);
-            if (theTouch.phase == TouchPhase.Ended)
-            {
-                phaseDisplayText.text = theTouch.phase.ToString();
-                timeTouchEnded = Time.time;
-            }
-            else if (Time.time - timeTouchEnded > displayTime)
-            {
-                phaseDisplayText.text = theTouch.phase.ToString();
-                timeTouchEnded = Time.time;
-            }
+            lastCheckTime = Time.time;
+            CheckFlagFile();
         }
-        else if (Time.time - timeTouchEnded > displayTime)
+        
+     
+        
+        // Support souris pour test PC
+        if (Input.GetMouseButtonDown(0))
         {
-            phaseDisplayText.text = "";
+            phaseDisplayText.text = "Clic souris !";
+            timeTouchEnded = Time.time;
+        }
+        
+      
+        void CheckFlagFile()
+        {
+        
+            if (File.Exists(flagFilePath))
+            {
+                string content = File.ReadAllText(flagFilePath).Trim();
+                Debug.Log("Contenu du flag : " + content);
+                if (content == "1")
+                    phaseDisplayText.text = "FLAG DÉTECTÉ ✅";
+                else
+                    phaseDisplayText.text = "FLAG NON VALIDE ❌";
+            }
+            else
+            {
+                Debug.LogWarning("Fichier flag introuvable : " + flagFilePath);
+            }
         }
     }
 }

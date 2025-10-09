@@ -564,7 +564,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1633565875}
-  - component: {fileID: 1633565874}
+  - component: {fileID: 1633565876}
   m_Layer: 0
   m_Name: TouchDisplay
   m_TagString: Untagged
@@ -572,19 +572,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1633565874
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1633565873}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2dede2bbb1a59904fae950d9d5d710cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  phaseDisplayText: {fileID: 284220538}
 --- !u!4 &1633565875
 Transform:
   m_ObjectHideFlags: 0
@@ -601,6 +588,21 @@ Transform:
   - {fileID: 1029328753}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1633565876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633565873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e91e5f395054eef91b37e163f586c89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statusText: {fileID: 284220538}
+  flagFilePath: /sdcard/MyGame/flags.json
+  checkInterval: 0.5
 --- !u!1001 &3232507648827254519
 PrefabInstance:
   m_ObjectHideFlags: 0
