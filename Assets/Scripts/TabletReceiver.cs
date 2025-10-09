@@ -60,7 +60,7 @@ public class TabletReceiver : MonoBehaviour
         // FLAG 1
         if (File.Exists(flag1Path))
         {
-            statusText.text = "🚩 FLAG 1 ACTIVÉ !";
+            statusText.text = "WELL DONE !";
             lastActionTime = Time.time;
             File.Delete(flag1Path); // supprimer pour trigger qu’une seule fois
         }
