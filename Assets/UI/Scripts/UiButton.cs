@@ -1,34 +1,27 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 [RequireComponent(typeof(Button))]
 public class UiButton : MonoBehaviour
 {
     public Button button;
-
-    [Header("🎬 Animator")]
-    public Animator animator;
-    public string clickTrigger = "Click";
+    public TMP_Text text;
 
     [Header("🔊 Sound")]
     public AudioClip customClickSound;
 
     private void Awake()
     {
-        button = GetComponentInChildren<Button>();
-
-        if (animator == null)
-            animator = GetComponent<Animator>();
-
-        GetComponent<Button>().onClick.AddListener(OnClick);
+        if (text == null)
+        {
+            text = GetComponentInChildren<TMP_Text>();
+        }
+        GetButton().onClick.AddListener(OnClick);
     }
 
     private void OnClick()
     {
-        // 🔸 Joue l’animation
-        if (animator && !string.IsNullOrEmpty(clickTrigger))
-            animator.SetTrigger(clickTrigger);
-
         // 🔸 Joue le son
         if (SoundManager.Instance)
         {
@@ -37,5 +30,15 @@ public class UiButton : MonoBehaviour
             else
                 SoundManager.Instance.PlayButtonClick();
         }
+    }
+    public Button GetButton()
+    {
+        return button = GetComponentInChildren<Button>();
+    }
+    public TMP_Text GetButtonText()
+        { return text; }
+    public void SetButtonText(string setText)
+    {
+        GetButtonText().text = setText;
     }
 }

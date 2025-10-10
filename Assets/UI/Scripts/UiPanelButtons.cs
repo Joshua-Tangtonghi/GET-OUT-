@@ -1,36 +1,50 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UiPannelButtons : MonoBehaviour
 {
-    [Header("?? Grid")]
-    public GridLayoutGroup gridLayout;
+    [Header("Buttons")]
+    UiButton[] buttons = new UiButton[4];
 
-    [Header("?? Buttons")]
-    public UiButton[] buttons = new UiButton[4];
-
+    TMP_Text questionText;
+    private int answer;
     private void Awake()
     {
-        if (gridLayout == null)
-            gridLayout = GetComponent<GridLayoutGroup>();
-
-        if (buttons == null || buttons.Length == 0)
-            buttons = GetComponentsInChildren<UiButton>();
-    }
-
-    private void Start()
-    {
-        // Exemple : abonne un comportement à chaque bouton
-        for (int i = 0; i < buttons.Length; i++)
+        if (buttons == null || buttons.Length == 0) ;
         {
-            int index = i;
-            buttons[i].button.onClick.AddListener(() => OnButtonClicked(index));
+            buttons = GetComponentsInChildren<UiButton>();
+        }
+        if (questionText == null)
+        {
+            questionText = GetComponentInChildren<TMP_Text>();
         }
     }
-
+    private void Start()
+    {
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            buttons[i].GetButton().onClick.AddListener(() => OnButtonClicked(i));
+        }
+    }
     private void OnButtonClicked(int index)
     {
         Debug.Log($"?? Bouton {index + 1} cliqué !");
-        // Ici tu peux ajouter ton code : ouvrir un menu, lancer une action, etc.
+        answer = index;
+    }
+    public int GetPlayerAnswer()
+    {
+        return answer;
+    }
+    public void SetQuestion(string setText)
+    {
+        questionText.text = setText;
+    }
+    public void SetButtonText(string setText)
+    {
+        foreach (UiButton b in buttons)
+        {
+            b.SetButtonText(setText);
+        }
     }
 }

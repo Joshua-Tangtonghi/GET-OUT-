@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Button
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: fc8333b828624cf408cb41445cb27e3b, type: 2}
   m_sharedMaterial: {fileID: -4851378715565134872, guid: fc8333b828624cf408cb41445cb27e3b, type: 2}
@@ -398,8 +398,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 6420481130142359048}
-  animator: {fileID: 0}
-  clickTrigger: Click
+  text: {fileID: 1606964221208845493}
   customClickSound: {fileID: 0}
 --- !u!1 &9128110654294267444
 GameObject:
