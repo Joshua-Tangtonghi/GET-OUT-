@@ -183,10 +183,10 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5696473609210573789}
   - {fileID: 1096642517117339807}
-  - {fileID: 8323521023189987322}
+  - {fileID: 5696473609210573789}
   - {fileID: 5281447504801700746}
+  - {fileID: 8323521023189987322}
   m_Father: {fileID: 5771538329364624112}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -333,7 +333,7 @@ Transform:
   m_GameObject: {fileID: 4709904781245569088}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -590, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -589,7 +589,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5486425844862587374, guid: 636b52c8c5e55574db4bef8f578209a5, type: 3}
       propertyPath: m_Name
-      value: Buton
+      value: Button 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -691,7 +691,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5486425844862587374, guid: 636b52c8c5e55574db4bef8f578209a5, type: 3}
       propertyPath: m_Name
-      value: Buton
+      value: Button 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -793,7 +793,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5486425844862587374, guid: 636b52c8c5e55574db4bef8f578209a5, type: 3}
       propertyPath: m_Name
-      value: Buton (1)
+      value: Button 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486425844862587374, guid: 636b52c8c5e55574db4bef8f578209a5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -895,7 +899,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5486425844862587374, guid: 636b52c8c5e55574db4bef8f578209a5, type: 3}
       propertyPath: m_Name
-      value: Buton (1)
+      value: Button 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
