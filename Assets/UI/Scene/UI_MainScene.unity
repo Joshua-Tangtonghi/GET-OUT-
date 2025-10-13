@@ -552,8 +552,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   statusText: {fileID: 633620148}
+  maxDialogText: {fileID: 1530776081}
   checkInterval: 0.5
   displayTime: 1
+  maxTouchBeforeGameOver: 5
+  maxSuspicious: 10
 --- !u!4 &818930765
 Transform:
   m_ObjectHideFlags: 0
@@ -754,6 +757,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 4795936666784099772, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
+      propertyPath: m_text
+      value: Stainnoary
+      objectReference: {fileID: 0}
     - target: {fileID: 6104933053904054585, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
       propertyPath: m_Layer
       value: 5
@@ -844,6 +851,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
+--- !u!114 &1530776081 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4795936666784099772, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
+  m_PrefabInstance: {fileID: 1530776080}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1602078893
 GameObject:
   m_ObjectHideFlags: 0
