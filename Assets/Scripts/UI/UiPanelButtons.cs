@@ -7,6 +7,7 @@ public class UiPannelButtons : MonoBehaviour
     UiButton[] buttons = new UiButton[4];
 
     TMP_Text questionText;
+    private Animator bAnim;
     private int answer;
     private void Awake()
     {
@@ -18,6 +19,7 @@ public class UiPannelButtons : MonoBehaviour
         {
             questionText = GetComponentInChildren<TMP_Text>();
         }
+        bAnim = GetComponent<Animator>();
     }
     private void Start()
     {
@@ -44,6 +46,17 @@ public class UiPannelButtons : MonoBehaviour
         foreach (UiButton b in buttons)
         {
             b.SetButtonText(setText);
+        }
+    }
+    public void ButtonPanelVisibility(bool up)
+    {
+        if (up)
+        {
+            bAnim.SetTrigger("Open");
+        }
+        else
+        {
+            bAnim.SetTrigger("Close");
         }
     }
 }
