@@ -37,7 +37,7 @@ public class TabletReceiver : MonoBehaviour
     
     // Chemins des fichiers flag
     // CHANGE CE CHEMIN selon ton Package Name dans Player Settings !
-    private string basePath = "/storage/emulated/0/Android/data/com.tonapp/files/"; // Chemin universel plus simple
+    private string basePath = "/storage/emulated/0/Android/data/com.UnityTechnologies.com.unitytemplate.urpblank/files/";
     private string keyPath;
     private string umbrellaPath;
     private string ballPath;
@@ -57,6 +57,7 @@ public class TabletReceiver : MonoBehaviour
 
     void Start()
     {
+
         // Initialiser les chemins
         InitializePaths();
         

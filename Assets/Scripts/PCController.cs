@@ -71,7 +71,7 @@ public class PCController : MonoBehaviour
         File.WriteAllText(tempPath, "1"); // contenu optionnel
 
         // Pousser dans le dossier persistentDataPath de l'app sur la tablette
-        string androidPath = $"/storage/emulated/0/Android/data/com.tonapp/files/{fileName}";
+        string androidPath = $"/storage/emulated/0/Android/data/com.UnityTechnologies.com.unitytemplate.urpblank/files/{fileName}";
         ExecuteADB($"push \"{tempPath}\" {androidPath}");
     }
 
@@ -84,7 +84,7 @@ public class PCController : MonoBehaviour
             if (File.Exists(tempPath))
                 File.Delete(tempPath);
 
-            string androidPath = $"/storage/emulated/0/Android/data/com.tonapp/files/{flag}";
+            string androidPath = $"/storage/emulated/0/Android/data/com.UnityTechnologies.com.unitytemplate.urpblank/files/{flag}";
             ExecuteADB($"shell rm {androidPath}");
         }
     }
