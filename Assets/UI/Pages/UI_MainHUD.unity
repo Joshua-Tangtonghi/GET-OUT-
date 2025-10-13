@@ -601,8 +601,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   statusText: {fileID: 284220538}
-  flagFilePath: /sdcard/MyGame/flags.json
   checkInterval: 0.5
+  displayTime: 2
+  maxTouchBeforeGameOver: 5
+  maxSuspicious: 10
 --- !u!1001 &3232507648827254519
 PrefabInstance:
   m_ObjectHideFlags: 0

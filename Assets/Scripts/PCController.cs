@@ -15,22 +15,46 @@ public class PCController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            PushFlag("flag1.flag");
-            statusText.text = "🚩 Flag 1 envoyé !";
-        }
-
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            PushFlag("button1.flag");
-            statusText.text = "🔵 Bouton 1 envoyé !";
+            PushFlag("key.flag");
+            statusText.text = "énigme clé envoyée !";
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            PushFlag("button2.flag");
-            statusText.text = "🔴 Bouton 2 envoyé !";
+            PushFlag("umbrella.flag");
+            statusText.text = "énigme parapluie envoyée !";
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            PushFlag("ball.flag");
+            statusText.text = "énigme balle envoyée !";
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            PushFlag("codeUV.flag");
+            statusText.text = "énigme code UV envoyée !";
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            PushFlag("maze.flag");
+            statusText.text = "énigme labyrinthe envoyée !";
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            PushFlag("code.flag");
+            statusText.text = "énigme code envoyée !";
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            PushFlag("captcha.flag");
+            statusText.text = "énigme captcha envoyée !";
         }
 
         if (Input.GetKeyDown(KeyCode.R))
@@ -53,7 +77,7 @@ public class PCController : MonoBehaviour
 
     void ResetFlags()
     {
-        string[] flags = { "flag1.flag", "button1.flag", "button2.flag" };
+        string[] flags = { "key.flag", "umbrella.flag", "ball.flag", "codeUV.flag", "maze.flag", "code.flag", "captcha.flag" };
         foreach (var flag in flags)
         {
             string tempPath = Path.Combine(Application.temporaryCachePath, flag);
@@ -69,9 +93,18 @@ public class PCController : MonoBehaviour
     {
         try
         {
+            // Chemin relatif vers adb
+            string adbPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "platform-tools", "adb.exe");
+
+            if (!File.Exists(adbPath))
+            {
+                UnityEngine.Debug.LogError($" ADB introuvable à l'emplacement : {adbPath}");
+                return;
+            }
+
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = "adb", // ADB doit être dans le PATH Windows
+                FileName = adbPath,
                 Arguments = arguments,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -85,13 +118,15 @@ public class PCController : MonoBehaviour
             string output = process.StandardOutput.ReadToEnd();
             string error = process.StandardError.ReadToEnd();
 
+            if (!string.IsNullOrEmpty(output))
+                UnityEngine.Debug.Log($"[ADB OUT] {output}");
+
             if (!string.IsNullOrEmpty(error) && !error.Contains("daemon"))
-                Debug.LogWarning("ADB: " + error);
+                UnityEngine.Debug.LogWarning($"[ADB ERR] {error}");
         }
         catch (System.Exception e)
         {
-            Debug.LogError("❌ Erreur ADB: " + e.Message);
-            statusText.text = "Erreur ADB !";
+            UnityEngine.Debug.LogError($" Erreur ADB: {e.Message}");
         }
     }
 
