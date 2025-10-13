@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class UiPannelButtons : MonoBehaviour
 {
@@ -40,7 +39,7 @@ public class UiPannelButtons : MonoBehaviour
     {
         questionText.text = setText;
     }
-    public void SetButtonText(string setText)
+    public void SetButtonsText(string setText)
     {
         foreach (UiButton b in buttons)
         {
