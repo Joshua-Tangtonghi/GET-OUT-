@@ -4,6 +4,9 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
+    public UiTimer UiTimer;
+    public UiPanelText UiPanelText;
+    public UiPannelButtons UiPannelButtons;
 
     [Header("UI Elements")]
     public Text timerText;
@@ -17,6 +20,16 @@ public class UIManager : MonoBehaviour
         // Singleton pattern
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+        if (UiTimer == null)
+            UiTimer = GetComponentInChildren<UiTimer>();
+        if (UiPanelText == null)
+            UiPanelText = GetComponentInChildren<UiPanelText>();
+        if (UiPannelButtons == null)
+            UiPannelButtons = GetComponentInChildren<UiPannelButtons>();
+    }
+    private void Start()
+    {
+        StartTimer();
     }
 
     private void Update()
@@ -24,7 +37,7 @@ public class UIManager : MonoBehaviour
         if (isTimerRunning)
         {
             timer += Time.deltaTime;
-            UpdateTimerDisplay();
+            UiTimer.UpdateTimerDisplay(timer);
         }
     }
 
@@ -37,13 +50,6 @@ public class UIManager : MonoBehaviour
     public void StopTimer()
     {
         isTimerRunning = false;
-    }
-
-    private void UpdateTimerDisplay()
-    {
-        int minutes = Mathf.FloorToInt(timer / 60f);
-        int seconds = Mathf.FloorToInt(timer % 60f);
-        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
     public void SetInfoText(string message)
