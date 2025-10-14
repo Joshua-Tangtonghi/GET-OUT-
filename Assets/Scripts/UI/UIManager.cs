@@ -7,10 +7,8 @@ public class UIManager : MonoBehaviour
     public UiTimer UiTimer;
     public UiPanelText UiPanelText;
     public UiPannelButtons UiPannelButtons;
-
-    [Header("UI Elements")]
-    public Text timerText;
-    public Text infoText;
+    public UiEye UiEye;
+    public UiCredits UiCredits;
 
     private float timer;
     private bool isTimerRunning = false;
@@ -26,6 +24,12 @@ public class UIManager : MonoBehaviour
             UiPanelText = GetComponentInChildren<UiPanelText>();
         if (UiPannelButtons == null)
             UiPannelButtons = GetComponentInChildren<UiPannelButtons>();
+        if (UiEye == null)
+            UiEye = GetComponentInChildren<UiEye>();
+        if (UiCredits == null)
+        {
+            UiCredits = GetComponentInChildren<UiCredits>();
+        }
     }
     private void Start()
     {
@@ -51,14 +55,12 @@ public class UIManager : MonoBehaviour
     {
         isTimerRunning = false;
     }
-
-    public void SetInfoText(string message)
+    public void PlayCredit()
     {
-        infoText.text = message;
-    }
-
-    public void HideInfoText()
-    {
-        infoText.text = "";
+        UiPanelText.PanelTextVisibility(false);
+        UiPannelButtons.ButtonPanelVisibility(false);
+        UiEye.gameObject.SetActive(false);
+        StopTimer();
+        UiCredits.gameObject.SetActive(true);
     }
 }
