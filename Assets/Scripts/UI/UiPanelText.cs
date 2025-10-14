@@ -15,6 +15,8 @@ public class UiPanelText : MonoBehaviour
     {
         panelText.SetText(t);
     }
+    public void SetPanelText(string t, float f)
+    {  panelText.SetText(t, f); }
     public void PanelTextVisibility(bool visible)
     {
         gameObject.SetActive(visible);
