@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,10 +28,17 @@ public class UiText : MonoBehaviour
     }
     public void SetText(string t, float f)
     {
-        for (int i = 0; i < text.text.Length; i++)
+        StopAllCoroutines();
+        StartCoroutine(TypeTextCoroutine(t, f));
+    }
+
+    private IEnumerator TypeTextCoroutine(string t, float f)
+    {
+        text.text = "";  // on vide avant d’écrire
+        for (int i = 0; i < t.Length; i++)
         {
             text.text += t[i];
-            new WaitForSeconds(f);
+            yield return new WaitForSeconds(f);
         }
     }
 }
