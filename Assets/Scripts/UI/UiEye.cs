@@ -6,7 +6,7 @@ public class UiEye : MonoBehaviour
 
     private void Awake()
     {
-        eAnim = GetComponent<Animator>();
+        eAnim = GetComponentInChildren<Animator>();
     }
     public void EyeMood(int i)
     {
@@ -26,6 +26,10 @@ public class UiEye : MonoBehaviour
     }
     public void EndingEye(bool win)
     {
-        eAnim.SetBool("End", win);
+        eAnim.SetBool("End", true);
+        if (win)
+            eAnim.SetInteger("Mood", 2);
+        else 
+            eAnim.SetInteger("Mood", -2);
     }
 }

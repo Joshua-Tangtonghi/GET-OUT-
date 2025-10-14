@@ -101,22 +101,22 @@ public class TabletReceiver : MonoBehaviour
 
         // Start01
         ShowMaxDialog("Hello. I am M.A.X. I am here to be sure you are qualified to enter.");
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(1f);
 
         // Start02
         ShowMaxDialog(
             "Of course, you are suppose to know the steps to unlock me.\nPlease press the button to go to the next step. Every step is separated by a button like this one");
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSeconds(1f);
 
         // Start03
         ShowMaxDialog(
             "Well let's see if you are really authorized to enter. You know you need an umbrella right ?\nYou might want to check in that umbrella holder if you forgot yours.");
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSeconds(1f);
 
         // StartTrial01
         ShowMaxDialog(
             "It is basic knowledge to know which key is which to start your day right ?\nAnd a good day starts with an umbrella");
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(1f);
 
         // Commencer le jeu
         currentState = GameState.Playing;
@@ -359,7 +359,7 @@ public class TabletReceiver : MonoBehaviour
 
         Debug.Log($"💀 GAME OVER - Touch limit ({touchCount} touches)");
         StartCoroutine(LoadMainMenuAfterDelay(5f));
-
+        UIManager.Instance.UiEye.EndingEye(false);    
     }
 
     // ============================================
