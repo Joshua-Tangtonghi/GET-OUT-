@@ -11,16 +11,23 @@ public class UiPanelText : MonoBehaviour
             panelText = GetComponentInChildren<UiText>();
         pAnim = GetComponent<Animator>();
     }
+
     public void SetPanelText(string t)
     {
         panelText.SetText(t);
     }
-    public void SetPanelText(string t, float f)
-    {  panelText.SetText(t, f); }
+
+    public string SetPanelText(string t, float f)
+    {
+        panelText.SetText(t, f);
+        return panelText.GetText();
+    }
+
     public void PanelTextVisibility(bool visible)
     {
         gameObject.SetActive(visible);
     }
+
     public void PanelTextAnim(bool up)
     {
         if (up)
