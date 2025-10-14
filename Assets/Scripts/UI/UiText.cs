@@ -25,4 +25,12 @@ public class UiText : MonoBehaviour
     {
         SetText(string.Empty);
     }
+    public void SetText(string t, float f)
+    {
+        for (int i = 0; i < text.text.Length; i++)
+        {
+            text.text += t[i];
+            new WaitForSeconds(f);
+        }
+    }
 }
