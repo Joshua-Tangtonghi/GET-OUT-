@@ -916,11 +916,16 @@ PrefabInstance:
       value: TouchDisplay
       objectReference: {fileID: 0}
     - target: {fileID: 8708168226750471342, guid: ccce6f9117f815447ad9c9302e5b1855, type: 3}
+      propertyPath: statusText
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708168226750471342, guid: ccce6f9117f815447ad9c9302e5b1855, type: 3}
       propertyPath: maxDialogText
       value: 
       objectReference: {fileID: 1530776081}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 7698389539875428525, guid: ccce6f9117f815447ad9c9302e5b1855, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ccce6f9117f815447ad9c9302e5b1855, type: 3}

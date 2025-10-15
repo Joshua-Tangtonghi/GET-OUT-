@@ -6,11 +6,8 @@ using System.Collections;
 public class TabletReceiver : MonoBehaviour
 {
     [Header("UI")] 
-    public TMP_Text statusText;
     public TMP_Text maxDialogText;
-    public GameObject questionPanel; // Panel contenant les 4 boutons
-    public TMP_Text questionText;
-    public UnityEngine.UI.Button[] answerButtons; // 4 boutons de réponse
+    public UiPannelButtons questionPanel; // Panel avec les 4 boutons
 
     [Header("Configuration")] 
     public float checkInterval = 0.5f;
@@ -25,7 +22,6 @@ public class TabletReceiver : MonoBehaviour
     private float suspicious = 0f;
     private int touchCount = 0;
 
-    // États du jeu
     private enum GameState
     {
         Intro,
@@ -39,7 +35,6 @@ public class TabletReceiver : MonoBehaviour
 
     private GameState currentState = GameState.Intro;
 
-    // Chemins des fichiers flag
     private string basePath =
         "/storage/emulated/0/Android/data/com.UnityTechnologies.com.unity.template.urpblank/files/";
 
@@ -51,7 +46,6 @@ public class TabletReceiver : MonoBehaviour
     private string codePath;
     private string captchaPath;
 
-    // Progression des énigmes
     private bool keyCompleted = false;
     private bool umbrellaCompleted = false;
     private bool ballCompleted = false;
@@ -60,21 +54,26 @@ public class TabletReceiver : MonoBehaviour
     private bool codeCompleted = false;
     private bool captchaCompleted = false;
 
-    // Questions posées
     private bool question1Asked = false;
     private bool question2Asked = false;
     private bool question3Asked = false;
     private bool question4Asked = false;
     private bool question5Asked = false;
 
+    private int currentCorrectAnswer = -1;
+    private int lastAnswer = -1;
+    bool flag = true;
+
+
     void Start()
     {
         InitializePaths();
         CleanupOldFlags();
         
-        // Masquer le panel de questions au départ
         if (questionPanel != null)
-            questionPanel.SetActive(false);
+        {
+            questionPanel.gameObject.SetActive(false);
+        }
         
         StartCoroutine(IntroSequence());
     }
@@ -127,7 +126,6 @@ public class TabletReceiver : MonoBehaviour
         yield return new WaitForSeconds(3f);
 
         currentState = GameState.Playing;
-        statusText.text = "En attente...";
         maxDialogText.text = "";
     }
 
@@ -139,6 +137,12 @@ public class TabletReceiver : MonoBehaviour
 
     void Update()
     {
+        if (currentState == GameState.WaitingForAnswer)
+        {
+            CheckPlayerAnswer();
+            return;
+        }
+
         if (currentState != GameState.Playing)
             return;
 
@@ -170,7 +174,6 @@ public class TabletReceiver : MonoBehaviour
             if (touch.phase == TouchPhase.Began)
             {
                 touchCount++;
-                statusText.text = $"✋ Touch {touchCount}/{maxTouchBeforeGameOver}";
                 lastActionTime = Time.time;
 
                 Debug.Log($"Touch détecté ! Total: {touchCount}");
@@ -185,11 +188,12 @@ public class TabletReceiver : MonoBehaviour
 
     void CheckFlags()
     {
-        if (true)
+        if (flag)
         {
             keyCompleted = true;
             OnKeyCompleted();
             File.Delete(keyPath);
+            flag = false;
         }
 
         if (!umbrellaCompleted && File.Exists(umbrellaPath))
@@ -235,24 +239,17 @@ public class TabletReceiver : MonoBehaviour
         }
     }
 
-    // ============================================
-    // ÉVÉNEMENTS DES ÉNIGMES
-    // ============================================
-
     void OnKeyCompleted()
     {
-        statusText.text = "🔑 Clé trouvée !";
         ShowMaxDialog("Good! You found the key. Now let's see about that umbrella...");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 01 - Key completed");
         
-        // Poser la question 1 après un délai
         StartCoroutine(AskQuestionAfterDelay(1, 2f));
     }
 
     void OnUmbrellaCompleted()
     {
-        statusText.text = "☂️ Parapluie obtenu !";
         ShowMaxDialog(
             "Ah ! I knew you forgot your umbrella ! Well now you have one. And a magnetic one with that !\nTo be honest, I am a little clogged... Maybe you can help me with that thing inside this pipe ?");
         lastActionTime = Time.time;
@@ -263,7 +260,6 @@ public class TabletReceiver : MonoBehaviour
 
     void OnBallCompleted()
     {
-        statusText.text = "🔮 Bille récupérée !";
         ShowMaxDialog(
             "So you get this useless lamp. Crazy that with your eyes only you can't see a message that\nobvious on the door. That make me think that the employes flash it on the painting a lot");
         lastActionTime = Time.time;
@@ -274,7 +270,6 @@ public class TabletReceiver : MonoBehaviour
 
     void OnCodeUVCompleted()
     {
-        statusText.text = "💡 Lampe UV obtenue !";
         ShowMaxDialog("Now use it wisely on the painting...");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 03 - UV Code completed");
@@ -282,7 +277,6 @@ public class TabletReceiver : MonoBehaviour
 
     void OnMazeCompleted()
     {
-        statusText.text = "🎨 Labyrinthe résolu !";
         ShowMaxDialog(
             "Congrats ! You are not the slowest human but not by far ! For me, it is easy to see it, but you might need something more to see the true beauty of the best employes");
         lastActionTime = Time.time;
@@ -293,7 +287,6 @@ public class TabletReceiver : MonoBehaviour
 
     void OnCodeCompleted()
     {
-        statusText.text = "👔 Employés identifiés !";
         ShowMaxDialog(
             "Keep it up ! Now i'm sure that you know what's behind that hole. But before that, Security question !");
         lastActionTime = Time.time;
@@ -304,15 +297,10 @@ public class TabletReceiver : MonoBehaviour
 
     void OnCaptchaCompleted()
     {
-        statusText.text = "✅ Forme trouvée !";
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 05 - Captcha completed");
         CheckWinCondition();
     }
-
-    // ============================================
-    // SYSTÈME DE QUESTIONS
-    // ============================================
 
     IEnumerator AskQuestionAfterDelay(int questionNumber, float delay)
     {
@@ -322,7 +310,6 @@ public class TabletReceiver : MonoBehaviour
 
     void AskQuestion(int questionNumber)
     {
-        // Vérifier si la question a déjà été posée
         switch (questionNumber)
         {
             case 1:
@@ -356,145 +343,150 @@ public class TabletReceiver : MonoBehaviour
     void AskQuestion1()
     {
         currentState = GameState.WaitingForAnswer;
+        currentCorrectAnswer = 2; // Index de "20"
+        lastAnswer = -1;
         
         Debug.Log("=== AskQuestion1 called ===");
         
-        // Masquer le panel de texte MAX
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
             UIManager.Instance.UiPanelText.PanelTextVisibility(false);
-            Debug.Log("Panel text hidden");
         }
         
-        // Afficher le panel de questions
         if (questionPanel != null)
         {
-            questionPanel.SetActive(true);
-            Debug.Log("Question panel shown");
+
+            questionPanel.gameObject.SetActive(true);
+            questionPanel.SetQuestion("All right! Let's see your knowledge about D.O.O.R.H.! How many keys are there on me?");
+            questionPanel.ButtonPanelVisibility(true);
+            
+            Debug.Log("Question 1 panel shown");
         }
-        
-        if (questionText != null)
-        {
-            questionText.text = "All right! Let's see your knowledge about D.O.O.R.H.! How many keys are there on me?";
-            Debug.Log("Question text set");
-        }
-        
-        SetupAnswerButton(0, "5", false);
-        SetupAnswerButton(1, "10", false);
-        SetupAnswerButton(2, "20", true);
-        SetupAnswerButton(3, "50", false);
-        
-        Debug.Log("All buttons setup for Question 1");
     }
 
     void AskQuestion2()
     {
         currentState = GameState.WaitingForAnswer;
-        UIManager.Instance.UiPanelText.PanelTextVisibility(false);
+        currentCorrectAnswer = 0; // Index de "Yes"
+        lastAnswer = -1;
         
-        questionPanel.SetActive(true);
-        questionText.text = "Daily survey of evolution within our large company D.O.O.R.H, please give us your thoughts! Is the marble on top of me magnetic?";
+        Debug.Log("=== AskQuestion2 called ===");
         
-        SetupAnswerButton(0, "Yes", true);
-        SetupAnswerButton(1, "No", false);
-        SetupAnswerButton(2, "", false); // Bouton désactivé
-        SetupAnswerButton(3, "", false); // Bouton désactivé
+        if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
+        {
+            UIManager.Instance.UiPanelText.PanelTextVisibility(false);
+        }
         
-        answerButtons[2].gameObject.SetActive(false);
-        answerButtons[3].gameObject.SetActive(false);
+        if (questionPanel != null)
+        {
+
+            questionPanel.gameObject.SetActive(true);
+            questionPanel.SetQuestion("Daily survey of evolution within our large company D.O.O.R.H, please give us your thoughts! Is the marble on top of me magnetic?");
+            questionPanel.ButtonPanelVisibility(true);
+        }
     }
 
     void AskQuestion3()
     {
         currentState = GameState.WaitingForAnswer;
-        UIManager.Instance.UiPanelText.PanelTextVisibility(false);
+        currentCorrectAnswer = 1; // Index de "An employee"
+        lastAnswer = -1;
         
-        questionPanel.SetActive(true);
+        Debug.Log("=== AskQuestion3 called ===");
         
-        string questionPrefix = suspicious > 5f 
-            ? "Well well well, I think you're hiding things from us, answer to this! Just a little basic security investigation! *polite laugh* Nothing dangerous!\n\n"
-            : "Well, I would need to collect some information, just a quick satisfaction survey!\n\n";
+        if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
+        {
+            UIManager.Instance.UiPanelText.PanelTextVisibility(false);
+        }
         
-        questionText.text = questionPrefix + "Who are you?";
-        
-        SetupAnswerButton(0, "The boss", false);
-        SetupAnswerButton(1, "An employee", true);
-        SetupAnswerButton(2, "A security agent", false);
-        SetupAnswerButton(3, "An intern", false);
+        if (questionPanel != null)
+        {
+
+            string questionPrefix = suspicious > 5f 
+                ? "Well well well, I think you're hiding things from us, answer to this! Just a little basic security investigation! *polite laugh* Nothing dangerous!\n\n"
+                : "Well, I would need to collect some information, just a quick satisfaction survey!\n\n";
+            
+            questionPanel.gameObject.SetActive(true);
+            questionPanel.SetQuestion(questionPrefix + "Who are you?");
+            questionPanel.ButtonPanelVisibility(true);
+        }
     }
 
     void AskQuestion4()
     {
         currentState = GameState.WaitingForAnswer;
-        UIManager.Instance.UiPanelText.PanelTextVisibility(false);
+        currentCorrectAnswer = 1; // Index de "B"
+        lastAnswer = -1;
         
-        questionPanel.SetActive(true);
-        questionText.text = "On the employees of the month board, who has the most chances of being promoted?";
+        Debug.Log("=== AskQuestion4 called ===");
         
-        SetupAnswerButton(0, "A", false);
-        SetupAnswerButton(1, "B", true);
-        SetupAnswerButton(2, "C", false);
-        SetupAnswerButton(3, "D", false);
+        if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
+        {
+            UIManager.Instance.UiPanelText.PanelTextVisibility(false);
+        }
+        
+        if (questionPanel != null)
+        {
+
+            questionPanel.gameObject.SetActive(true);
+            questionPanel.SetQuestion("On the employees of the month board, who has the most chances of being promoted?");
+            questionPanel.ButtonPanelVisibility(true);
+        }
     }
 
     void AskQuestion5()
     {
         currentState = GameState.WaitingForAnswer;
-        UIManager.Instance.UiPanelText.PanelTextVisibility(false);
+        currentCorrectAnswer = 3; // Index de "Please don't"
+        lastAnswer = -1;
         
-        questionPanel.SetActive(true);
-        questionText.text = "In the hole, if you put your hand in it, do you think you risk being electrocuted?";
+        Debug.Log("=== AskQuestion5 called ===");
         
-        SetupAnswerButton(0, "Yes", false);
-        SetupAnswerButton(1, "No", false);
-        SetupAnswerButton(2, "Maybe", false);
-        SetupAnswerButton(3, "Please don't", true);
-    }
-
-    void SetupAnswerButton(int index, string text, bool isCorrect)
-    {
-        if (index >= answerButtons.Length) return;
-        
-        answerButtons[index].gameObject.SetActive(true);
-        
-        TMP_Text buttonText = answerButtons[index].GetComponentInChildren<TMP_Text>();
-        if (buttonText != null)
+        if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
-            buttonText.text = text;
+            UIManager.Instance.UiPanelText.PanelTextVisibility(false);
         }
         
-        // Retirer tous les listeners précédents
-        answerButtons[index].onClick.RemoveAllListeners();
+        if (questionPanel != null)
+        {
+
+            questionPanel.gameObject.SetActive(true);
+            questionPanel.SetQuestion("In the hole, if you put your hand in it, do you think you risk being electrocuted?");
+            questionPanel.ButtonPanelVisibility(true);
+        }
+    }
+
+    void CheckPlayerAnswer()
+    {
+        if (questionPanel == null) return;
+
+        int playerAnswer = questionPanel.GetPlayerAnswer();
         
-        // Ajouter le nouveau listener
-        int buttonIndex = index;
-        answerButtons[index].onClick.AddListener(() => {
-            Debug.Log($"Button {buttonIndex} clicked! Text: {text}, IsCorrect: {isCorrect}");
-            OnAnswerSelected(isCorrect);
-        });
-        
-        // Vérifier que le bouton est interactable
-        answerButtons[index].interactable = true;
-        
-        Debug.Log($"Button {index} setup: '{text}' - Correct: {isCorrect}");
+        // Si la réponse a changé
+        if (playerAnswer != lastAnswer && playerAnswer >= 0)
+        {
+            lastAnswer = playerAnswer;
+            Debug.Log($"🔘 Player answered: {playerAnswer}, Correct: {currentCorrectAnswer}");
+            
+            OnAnswerSelected(playerAnswer == currentCorrectAnswer);
+        }
     }
 
     void OnAnswerSelected(bool isCorrect)
     {
-        Debug.Log($"OnAnswerSelected called! IsCorrect: {isCorrect}");
+        Debug.Log($"📝 OnAnswerSelected called! IsCorrect: {isCorrect}");
         
-        // Masquer le panel de questions
         if (questionPanel != null)
         {
-            questionPanel.SetActive(false);
-            Debug.Log("Question panel hidden");
+            questionPanel.ButtonPanelVisibility(false);
+            questionPanel.gameObject.SetActive(false);
+            Debug.Log("❌ Question panel hidden");
         }
         
-        // Réafficher le panel de texte MAX
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
-            Debug.Log("Panel text shown");
+            Debug.Log("✅ Panel text shown");
         }
         
         if (isCorrect)
@@ -509,16 +501,13 @@ public class TabletReceiver : MonoBehaviour
             Debug.Log("❌ Mauvaise réponse - Suspicion ajoutée");
         }
         
-        // Retourner au mode Playing
         currentState = GameState.Playing;
         lastActionTime = Time.time;
+        currentCorrectAnswer = -1;
+        lastAnswer = -1;
         
-        Debug.Log("Answer processed, returning to Playing state");
+        Debug.Log("🎮 Answer processed, returning to Playing state");
     }
-
-    // ============================================
-    // CONDITIONS DE FIN
-    // ============================================
 
     void CheckWinCondition()
     {
@@ -534,7 +523,6 @@ public class TabletReceiver : MonoBehaviour
         if (currentState == GameState.GameWin) return;
 
         currentState = GameState.GameWin;
-        statusText.text = "🎉 VICTOIRE !";
         ShowMaxDialog(
             "Well done! You succeeded all the verification steps! Enjoy your day at work!\nSuper! I feel like you're ready to climb the career ladder! Keep going!");
 
@@ -547,10 +535,16 @@ public class TabletReceiver : MonoBehaviour
         if (currentState != GameState.Playing && currentState != GameState.WaitingForAnswer) return;
 
         currentState = GameState.GameOverSuspicion;
-        questionPanel.SetActive(false);
-        UIManager.Instance.UiPanelText.PanelTextVisibility(true);
         
-        statusText.text = "💀 GAME OVER - Suspicion";
+        if (questionPanel != null)
+        {
+            questionPanel.ButtonPanelVisibility(false);
+            questionPanel.gameObject.SetActive(false);
+        }
+            
+        if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
+            UIManager.Instance.UiPanelText.PanelTextVisibility(true);
+        
         ShowMaxDialog(
             "An intruder has been detected in front of our grand company D.O.O.R.H. Please do not panic,\nour teams will take care of it. Stay close to your station post and keep serving our society.");
 
@@ -563,36 +557,28 @@ public class TabletReceiver : MonoBehaviour
         if (currentState != GameState.Playing) return;
 
         currentState = GameState.GameOverTouch;
-        statusText.text = "💀 GAME OVER - Trop de touches !";
         ShowMaxDialog("Stop touching everything! Security has been alerted!");
 
         Debug.Log($"💀 GAME OVER - Touch limit ({touchCount} touches)");
         StartCoroutine(LoadMainMenuAfterDelay(5f));
-        UIManager.Instance.UiEye.EndingEye(false);
+        
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.EndingEye(false);
     }
-
-    // ============================================
-    // SYSTÈME DE SUSPICION
-    // ============================================
 
     public void AddSuspicion(float amount = 1f)
     {
         if (currentState != GameState.Playing && currentState != GameState.WaitingForAnswer) return;
 
         suspicious += amount;
-        statusText.text = $"⚠️ Suspicion : {suspicious:F1}/{maxSuspicious}";
         lastActionTime = Time.time;
 
         Debug.Log($"Suspicion ajoutée: {amount} (Total: {suspicious}/{maxSuspicious})");
     }
 
-    // ============================================
-    // AFFICHAGE
-    // ============================================
-
     void ShowMaxDialog(string text)
     {
-        if (maxDialogText)
+        if (maxDialogText && UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
             string textF = UIManager.Instance.UiPanelText.SetPanelText(text, 0.1f);
             maxDialogText.text = "MAX: " + textF;
@@ -612,13 +598,8 @@ public class TabletReceiver : MonoBehaviour
             if (codeCompleted) completed++;
             if (captchaCompleted) completed++;
 
-            statusText.text = $"Énigmes: {completed}/7 | Touch: {touchCount}/{maxTouchBeforeGameOver}";
         }
     }
-
-    // ============================================
-    // DEBUG
-    // ============================================
 
     void OnGUI()
     {

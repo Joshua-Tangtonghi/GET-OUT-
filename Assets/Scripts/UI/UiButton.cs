@@ -1,44 +1,40 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
-[RequireComponent(typeof(Button))]
 public class UiButton : MonoBehaviour
 {
-    public Button button;
-    public TMP_Text text;
-
-    [Header("🔊 Sound")]
-    public AudioClip customClickSound;
+    [Header("Références")]
+    [SerializeField] private Button button;         // le vrai bouton
+    [SerializeField] private TMP_Text buttonText;   // le texte du bouton
 
     private void Awake()
     {
-        if (text == null)
-        {
-            text = GetComponentInChildren<TMP_Text>();
-        }
-        GetButton().onClick.AddListener(OnClick);
+        // 🔹 Assignation automatique si vide
+        if (button == null)
+            button = GetComponent<Button>();
+
+        if (buttonText == null)
+            buttonText = GetComponentInChildren<TMP_Text>();
+
+        if (button == null)
+            Debug.LogError($"❌ Aucun Button trouvé sur {gameObject.name}");
+        if (buttonText == null)
+            Debug.LogError($"❌ Aucun TMP_Text trouvé sur {gameObject.name}");
     }
 
-    private void OnClick()
-    {
-        // 🔸 Joue le son
-        if (SoundManager.Instance)
-        {
-            if (customClickSound != null)
-                SoundManager.Instance.PlaySFX(customClickSound);
-            else
-                SoundManager.Instance.PlayButtonClick();
-        }
-    }
+    // Permet à UiPannelButtons d'accéder au composant Button
     public Button GetButton()
     {
-        return button = GetComponentInChildren<Button>();
+        return button;
     }
-    public TMP_Text GetButtonText()
-        { return text; }
-    public void SetButtonText(string setText)
+
+    // Permet de changer le texte du bouton
+    public void SetButtonText(string text)
     {
-        GetButtonText().text = setText;
+        if (buttonText != null)
+            buttonText.text = text;
+        else
+            Debug.LogWarning($"⚠️ TMP_Text manquant sur {gameObject.name}");
     }
 }
