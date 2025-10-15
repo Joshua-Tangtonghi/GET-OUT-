@@ -2,6 +2,8 @@
 using TMPro;
 using System.IO;
 using System.Collections;
+using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class TabletReceiver : MonoBehaviour
 {
@@ -21,6 +23,8 @@ public class TabletReceiver : MonoBehaviour
     private float lastActionTime = 0f;
     private float suspicious = 0f;
     private int touchCount = 0;
+    
+
 
     private enum GameState
     {
@@ -63,12 +67,14 @@ public class TabletReceiver : MonoBehaviour
     private int currentCorrectAnswer = -1;
     private int lastAnswer = -1;
     bool flag = true;
+    
 
     void Start()
     {
+
         InitializePaths();
-        CleanupOldFlags();
-        
+        CleanupOldFlags(); 
+
         if (questionPanel != null)
         {
             questionPanel.gameObject.SetActive(false);
@@ -81,7 +87,10 @@ public class TabletReceiver : MonoBehaviour
         
         StartCoroutine(IntroSequence());
     }
-
+    private void OnClick()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("UI_MainScene");
+    }
     void InitializePaths()
     {
         keyPath = Path.Combine(basePath, "key.flag");
@@ -192,7 +201,7 @@ public class TabletReceiver : MonoBehaviour
 
     void CheckFlags()
     {
-        if (flag)
+        if (!keyCompleted && File.Exists(keyPath))
         {
             keyCompleted = true;
             OnKeyCompleted();
