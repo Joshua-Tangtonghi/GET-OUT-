@@ -12,6 +12,8 @@ public class UIManager : MonoBehaviour
 
     private float timer;
     private bool isTimerRunning = false;
+    public float currentTimer;
+    public float loseTimer = 900;
 
     private void Awake()
     {
@@ -41,7 +43,8 @@ public class UIManager : MonoBehaviour
         if (isTimerRunning)
         {
             timer += Time.deltaTime;
-            UiTimer.UpdateTimerDisplay(timer);
+            currentTimer = loseTimer - timer;
+            UiTimer.UpdateTimerDisplay(currentTimer);
         }
     }
 
