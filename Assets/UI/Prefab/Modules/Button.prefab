@@ -398,8 +398,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 6420481130142359048}
-  text: {fileID: 1606964221208845493}
-  customClickSound: {fileID: 0}
+  buttonText: {fileID: 1606964221208845493}
 --- !u!1 &9128110654294267444
 GameObject:
   m_ObjectHideFlags: 0
