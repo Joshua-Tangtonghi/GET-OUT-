@@ -3,6 +3,8 @@ using UnityEngine;
 public class UiTimer : MonoBehaviour
 {
     public UiText timerText;
+    private float currentTimer;
+    public float loseTimer = 900;
 
     private void Awake()
     {
@@ -17,8 +19,9 @@ public class UiTimer : MonoBehaviour
     }
     public void UpdateTimerDisplay(float timer)
     {
-        int minutes = Mathf.FloorToInt(timer / 60f);
-        int seconds = Mathf.FloorToInt(timer % 60f);
+        currentTimer = loseTimer - timer;
+        int minutes = Mathf.FloorToInt(currentTimer / 60f);
+        int seconds = Mathf.FloorToInt(currentTimer % 60f);
         SetTimer(string.Format("{0:00}:{1:00}", minutes, seconds));
     }
     public void TimerVisibility(bool visible)

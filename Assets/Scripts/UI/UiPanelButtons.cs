@@ -4,7 +4,7 @@ using UnityEngine;
 public class UiPannelButtons : MonoBehaviour
 {
     [Header("Buttons")]
-    UiButton[] buttons = new UiButton[4];
+    public UiButton[] buttons = new UiButton[4];
 
     TMP_Text questionText;
     private Animator bAnim;
