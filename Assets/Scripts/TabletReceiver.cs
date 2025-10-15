@@ -7,7 +7,7 @@ public class TabletReceiver : MonoBehaviour
 {
     [Header("UI")] 
     public TMP_Text maxDialogText;
-    public UiPannelButtons questionPanel; // Panel avec les 4 boutons
+    public UiPannelButtons questionPanel;
 
     [Header("Configuration")] 
     public float checkInterval = 0.5f;
@@ -64,7 +64,6 @@ public class TabletReceiver : MonoBehaviour
     private int lastAnswer = -1;
     bool flag = true;
 
-
     void Start()
     {
         InitializePaths();
@@ -73,6 +72,11 @@ public class TabletReceiver : MonoBehaviour
         if (questionPanel != null)
         {
             questionPanel.gameObject.SetActive(false);
+            Debug.Log("✅ Question panel initialisé et caché");
+        }
+        else
+        {
+            Debug.LogError("❌ questionPanel est NULL dans Start!");
         }
         
         StartCoroutine(IntroSequence());
@@ -342,35 +346,55 @@ public class TabletReceiver : MonoBehaviour
 
     void AskQuestion1()
     {
+        Debug.Log("=== AskQuestion1 START ===");
+        
         currentState = GameState.WaitingForAnswer;
         currentCorrectAnswer = 2; // Index de "20"
         lastAnswer = -1;
         
-        Debug.Log("=== AskQuestion1 called ===");
-        
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
             UIManager.Instance.UiPanelText.PanelTextVisibility(false);
+            Debug.Log("✅ Panel text caché");
         }
         
         if (questionPanel != null)
         {
-
+            // IMPORTANT : Activer le panel AVANT de set les textes
             questionPanel.gameObject.SetActive(true);
-            questionPanel.SetQuestion("All right! Let's see your knowledge about D.O.O.R.H.! How many keys are there on me?");
-            questionPanel.ButtonPanelVisibility(true);
+            Debug.Log("✅ Question panel activé");
             
-            Debug.Log("Question 1 panel shown");
+            // Reset la réponse
+            questionPanel.ResetAnswer();
+            
+            // Définir la question
+            questionPanel.SetQuestion("All right! Let's see your knowledge about D.O.O.R.H.! How many keys are there on me?");
+            Debug.Log("✅ Question définie");
+            
+            // Définir les textes des boutons
+            string[] answers = { "10", "15", "20", "25" };
+            questionPanel.SetButtonsText(answers);
+            Debug.Log("✅ Textes des boutons définis");
+            
+            // Rendre visible (animation si nécessaire)
+            questionPanel.ButtonPanelVisibility(true);
+            Debug.Log("✅ Panel visible (animation lancée)");
         }
+        else
+        {
+            Debug.LogError("❌ questionPanel est NULL!");
+        }
+        
+        Debug.Log("=== AskQuestion1 END ===");
     }
 
     void AskQuestion2()
     {
+        Debug.Log("=== AskQuestion2 START ===");
+        
         currentState = GameState.WaitingForAnswer;
         currentCorrectAnswer = 0; // Index de "Yes"
         lastAnswer = -1;
-        
-        Debug.Log("=== AskQuestion2 called ===");
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
@@ -379,20 +403,25 @@ public class TabletReceiver : MonoBehaviour
         
         if (questionPanel != null)
         {
-
             questionPanel.gameObject.SetActive(true);
+            questionPanel.ResetAnswer();
             questionPanel.SetQuestion("Daily survey of evolution within our large company D.O.O.R.H, please give us your thoughts! Is the marble on top of me magnetic?");
+            
+            string[] answers = { "Yes", "No", "Maybe", "I don't know" };
+            questionPanel.SetButtonsText(answers);
+            
             questionPanel.ButtonPanelVisibility(true);
+            Debug.Log("✅ Question 2 affichée");
         }
     }
 
     void AskQuestion3()
     {
+        Debug.Log("=== AskQuestion3 START ===");
+        
         currentState = GameState.WaitingForAnswer;
         currentCorrectAnswer = 1; // Index de "An employee"
         lastAnswer = -1;
-        
-        Debug.Log("=== AskQuestion3 called ===");
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
@@ -401,24 +430,30 @@ public class TabletReceiver : MonoBehaviour
         
         if (questionPanel != null)
         {
-
+            questionPanel.gameObject.SetActive(true);
+            questionPanel.ResetAnswer();
+            
             string questionPrefix = suspicious > 5f 
                 ? "Well well well, I think you're hiding things from us, answer to this! Just a little basic security investigation! *polite laugh* Nothing dangerous!\n\n"
                 : "Well, I would need to collect some information, just a quick satisfaction survey!\n\n";
             
-            questionPanel.gameObject.SetActive(true);
             questionPanel.SetQuestion(questionPrefix + "Who are you?");
+            
+            string[] answers = { "A visitor", "An employee", "A thief", "MAX" };
+            questionPanel.SetButtonsText(answers);
+            
             questionPanel.ButtonPanelVisibility(true);
+            Debug.Log("✅ Question 3 affichée");
         }
     }
 
     void AskQuestion4()
     {
+        Debug.Log("=== AskQuestion4 START ===");
+        
         currentState = GameState.WaitingForAnswer;
         currentCorrectAnswer = 1; // Index de "B"
         lastAnswer = -1;
-        
-        Debug.Log("=== AskQuestion4 called ===");
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
@@ -427,20 +462,25 @@ public class TabletReceiver : MonoBehaviour
         
         if (questionPanel != null)
         {
-
             questionPanel.gameObject.SetActive(true);
+            questionPanel.ResetAnswer();
             questionPanel.SetQuestion("On the employees of the month board, who has the most chances of being promoted?");
+            
+            string[] answers = { "A", "B", "C", "D" };
+            questionPanel.SetButtonsText(answers);
+            
             questionPanel.ButtonPanelVisibility(true);
+            Debug.Log("✅ Question 4 affichée");
         }
     }
 
     void AskQuestion5()
     {
+        Debug.Log("=== AskQuestion5 START ===");
+        
         currentState = GameState.WaitingForAnswer;
         currentCorrectAnswer = 3; // Index de "Please don't"
         lastAnswer = -1;
-        
-        Debug.Log("=== AskQuestion5 called ===");
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
@@ -449,10 +489,15 @@ public class TabletReceiver : MonoBehaviour
         
         if (questionPanel != null)
         {
-
             questionPanel.gameObject.SetActive(true);
+            questionPanel.ResetAnswer();
             questionPanel.SetQuestion("In the hole, if you put your hand in it, do you think you risk being electrocuted?");
+            
+            string[] answers = { "Yes", "No", "Maybe", "Please don't" };
+            questionPanel.SetButtonsText(answers);
+            
             questionPanel.ButtonPanelVisibility(true);
+            Debug.Log("✅ Question 5 affichée");
         }
     }
 
@@ -462,7 +507,6 @@ public class TabletReceiver : MonoBehaviour
 
         int playerAnswer = questionPanel.GetPlayerAnswer();
         
-        // Si la réponse a changé
         if (playerAnswer != lastAnswer && playerAnswer >= 0)
         {
             lastAnswer = playerAnswer;
@@ -597,7 +641,6 @@ public class TabletReceiver : MonoBehaviour
             if (mazeCompleted) completed++;
             if (codeCompleted) completed++;
             if (captchaCompleted) completed++;
-
         }
     }
 
