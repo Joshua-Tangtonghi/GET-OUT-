@@ -24,14 +24,13 @@ public class TabletReceiver : MonoBehaviour
     private float lastActionTime = 0f;
     private float suspicious = 0f;
     private int touchCount = 0;
-    
-
 
     private enum GameState
     {
         Intro,
         Playing,
         WaitingForAnswer,
+        ShowingTip,
         GameWin,
         GameOverSuspicion,
         GameOverTimeout,
@@ -68,11 +67,9 @@ public class TabletReceiver : MonoBehaviour
     private int currentCorrectAnswer = -1;
     private int lastAnswer = -1;
     bool flag = true;
-    
 
     void Start()
     {
-
         InitializePaths();
         CleanupOldFlags(); 
 
@@ -88,10 +85,7 @@ public class TabletReceiver : MonoBehaviour
         
         StartCoroutine(IntroSequence());
     }
-    private void OnClick()
-    {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("UI_MainScene");
-    }
+
     void InitializePaths()
     {
         keyPath = Path.Combine(basePath, "key.flag");
@@ -143,8 +137,70 @@ public class TabletReceiver : MonoBehaviour
         AudioManager.Instance.Play("startTrials01");
         yield return new WaitForSeconds(AudioManager.Instance.GetLength("startTrials01"));
 
+        // Afficher le premier tip après l'intro
+        yield return StartCoroutine(ShowTip(1));
+
         currentState = GameState.Playing;
         maxDialogText.text = "";
+        
+        // Démarrer le timer via UIManager
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.StartTimer();
+            if (UIManager.Instance.UiTimer != null)
+            {
+                UIManager.Instance.UiTimer.TimerVisibility(true);
+            }
+        }
+        
+        Debug.Log("⏱️ Timer démarré via UIManager");
+    }
+
+    IEnumerator ShowTip(int tipNumber)
+    {
+        currentState = GameState.ShowingTip;
+        
+        string tipMessage = "";
+        string audioClip = "";
+        
+        switch (tipNumber)
+        {
+            case 1:
+                tipMessage = "Tip: You...You're alright ? Hard to remember something so obvious ? Well I can understand... Or not. \nHow do want to open a lock without a key ?";
+                audioClip = "tipsTrials01";
+                break;
+            case 2:
+                tipMessage = "Tip: You know that an umbrella can get you to place much higher ?";
+                audioClip = "tipsTrials02";
+                break;
+            case 3:
+                tipMessage = "Tip: Maybe you can try to use what you just got on the painting ?";
+                audioClip = "tipsTrials03";
+                break;
+            case 4:
+                tipMessage = "Tip: Roses are red, Violets arer blue, the colors are shifted, glasses you should use.";
+                audioClip = "tipsTrials04";
+                break;
+            case 5:
+                tipMessage = "Tip:Come on ! What's in the box ? You should know.... It has not change since yesterday.";
+                audioClip = "tipsTrials05";
+                break;
+        }
+        
+        ShowMaxDialog(tipMessage);
+        
+        if (AudioManager.Instance != null && !string.IsNullOrEmpty(audioClip))
+        {
+            AudioManager.Instance.Play(audioClip);
+            yield return new WaitForSeconds(AudioManager.Instance.GetLength(audioClip));
+        }
+        else
+        {
+            yield return new WaitForSeconds(3f);
+        }
+        
+        maxDialogText.text = "";
+        currentState = GameState.Playing;
     }
 
     IEnumerator LoadMainMenuAfterDelay(float delay)
@@ -155,6 +211,17 @@ public class TabletReceiver : MonoBehaviour
 
     void Update()
     {
+        // Vérifier le timeout via UIManager
+        if (UIManager.Instance != null && 
+            (currentState == GameState.Playing || currentState == GameState.WaitingForAnswer))
+        {
+            if (UIManager.Instance.currentTimer <= 0f)
+            {
+                GameOverTimeout();
+                return;
+            }
+        }
+
         if (currentState == GameState.WaitingForAnswer)
         {
             CheckPlayerAnswer();
@@ -211,7 +278,6 @@ public class TabletReceiver : MonoBehaviour
             keyCompleted = true;
             OnKeyCompleted();
             File.Delete(keyPath);
-            flag = false;
         }
 
         if (!umbrellaCompleted && File.Exists(umbrellaPath))
@@ -263,7 +329,7 @@ public class TabletReceiver : MonoBehaviour
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 01 - Key completed");
         
-        StartCoroutine(AskQuestionAfterDelay(1, 2f));
+        StartCoroutine(QuestionTipSequence(1, 2));
     }
 
     void OnUmbrellaCompleted()
@@ -274,7 +340,7 @@ public class TabletReceiver : MonoBehaviour
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 01 Finish - Umbrella completed");
         
-        StartCoroutine(AskQuestionAfterDelay(2, 2f));
+        StartCoroutine(QuestionTipSequence(2, 3));
     }
 
     void OnBallCompleted()
@@ -285,7 +351,7 @@ public class TabletReceiver : MonoBehaviour
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 02 - Ball completed");
         
-        StartCoroutine(AskQuestionAfterDelay(3, 2f));
+        StartCoroutine(QuestionTipSequence(3, 4));
     }
 
     void OnCodeUVCompleted()
@@ -303,7 +369,7 @@ public class TabletReceiver : MonoBehaviour
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 03 Finish - Maze completed");
         
-        StartCoroutine(AskQuestionAfterDelay(4, 2f));
+        StartCoroutine(QuestionTipSequence(4, 5));
     }
 
     void OnCodeCompleted()
@@ -323,6 +389,24 @@ public class TabletReceiver : MonoBehaviour
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 05 - Captcha completed");
         CheckWinCondition();
+    }
+
+    IEnumerator QuestionTipSequence(int questionNumber, int tipNumber)
+    {
+        yield return new WaitForSeconds(2f);
+        AskQuestion(questionNumber);
+        
+        // Attendre que la question soit répondue
+        while (currentState == GameState.WaitingForAnswer)
+        {
+            yield return null;
+        }
+        
+        // Attendre le délai de ReturnToPlayingAfterDelay
+        yield return new WaitForSeconds(3f);
+        
+        // Afficher le tip
+        yield return StartCoroutine(ShowTip(tipNumber));
     }
 
     IEnumerator AskQuestionAfterDelay(int questionNumber, float delay)
@@ -373,7 +457,7 @@ public class TabletReceiver : MonoBehaviour
         Debug.Log("=== AskQuestion1 START ===");
         
         currentState = GameState.WaitingForAnswer;
-        currentCorrectAnswer = 2; // Index de "20"
+        currentCorrectAnswer = 2;
         lastAnswer = -1;
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
@@ -384,23 +468,17 @@ public class TabletReceiver : MonoBehaviour
         
         if (questionPanel != null)
         {
-            // IMPORTANT : Activer le panel AVANT de set les textes
             questionPanel.gameObject.SetActive(true);
             Debug.Log("✅ Question panel activé");
             
-            // Reset la réponse
             questionPanel.ResetAnswer();
-            
-            // Définir la question
             questionPanel.SetQuestion("All right! Let's see your knowledge about D.O.O.R.H.! How many keys are there on me?");
             Debug.Log("✅ Question définie");
             
-            // Définir les textes des boutons
             string[] answers = { "10", "15", "20", "25" };
             questionPanel.SetButtonsText(answers);
             Debug.Log("✅ Textes des boutons définis");
             
-            // Rendre visible (animation si nécessaire)
             questionPanel.ButtonPanelVisibility(true);
             Debug.Log("✅ Panel visible (animation lancée)");
         }
@@ -417,7 +495,7 @@ public class TabletReceiver : MonoBehaviour
         Debug.Log("=== AskQuestion2 START ===");
         
         currentState = GameState.WaitingForAnswer;
-        currentCorrectAnswer = 0; // Index de "Yes"
+        currentCorrectAnswer = 0;
         lastAnswer = -1;
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
@@ -444,7 +522,7 @@ public class TabletReceiver : MonoBehaviour
         Debug.Log("=== AskQuestion3 START ===");
         
         currentState = GameState.WaitingForAnswer;
-        currentCorrectAnswer = 1; // Index de "An employee"
+        currentCorrectAnswer = 1;
         lastAnswer = -1;
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
@@ -476,7 +554,7 @@ public class TabletReceiver : MonoBehaviour
         Debug.Log("=== AskQuestion4 START ===");
         
         currentState = GameState.WaitingForAnswer;
-        currentCorrectAnswer = 1; // Index de "B"
+        currentCorrectAnswer = 1;
         lastAnswer = -1;
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
@@ -503,7 +581,7 @@ public class TabletReceiver : MonoBehaviour
         Debug.Log("=== AskQuestion5 START ===");
         
         currentState = GameState.WaitingForAnswer;
-        currentCorrectAnswer = 3; // Index de "Please don't"
+        currentCorrectAnswer = 3;
         lastAnswer = -1;
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
@@ -564,14 +642,14 @@ public class TabletReceiver : MonoBehaviour
         }
         else
         {
-            AddSuspicion(2f);
+            AddSuspicion(5f);
             ShowMaxDialog("Hmm... That's not quite right. Suspicious...");
             Debug.Log("❌ Mauvaise réponse - Suspicion ajoutée");
         }
         
         StartCoroutine(ReturnToPlayingAfterDelay(3f));
-
     }
+    
     IEnumerator ReturnToPlayingAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -583,6 +661,7 @@ public class TabletReceiver : MonoBehaviour
         
         Debug.Log("🎮 Answer processed, returning to Playing state");
     }
+
     void CheckWinCondition()
     {
         if (keyCompleted && umbrellaCompleted && ballCompleted &&
@@ -597,6 +676,17 @@ public class TabletReceiver : MonoBehaviour
         if (currentState == GameState.GameWin) return;
 
         currentState = GameState.GameWin;
+        
+        // Arrêter le timer via UIManager
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.StopTimer();
+            if (UIManager.Instance.UiTimer != null)
+            {
+                UIManager.Instance.UiTimer.TimerVisibility(false);
+            }
+        }
+        
         ShowMaxDialog(
             "Well done! You succeeded all the verification steps! Enjoy your day at work!\nSuper! I feel like you're ready to climb the career ladder! Keep going!");
         AudioManager.Instance.Play("end");
@@ -609,6 +699,16 @@ public class TabletReceiver : MonoBehaviour
         if (currentState != GameState.Playing && currentState != GameState.WaitingForAnswer) return;
 
         currentState = GameState.GameOverSuspicion;
+        
+        // Arrêter le timer via UIManager
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.StopTimer();
+            if (UIManager.Instance.UiTimer != null)
+            {
+                UIManager.Instance.UiTimer.TimerVisibility(false);
+            }
+        }
         
         if (questionPanel != null)
         {
@@ -626,11 +726,61 @@ public class TabletReceiver : MonoBehaviour
         StartCoroutine(LoadMainMenuAfterDelay(5f));
     }
 
+    void GameOverTimeout()
+    {
+        if (currentState == GameState.GameOverTimeout) return;
+
+        currentState = GameState.GameOverTimeout;
+        
+        // Arrêter le timer via UIManager
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.StopTimer();
+            if (UIManager.Instance.UiTimer != null)
+            {
+                UIManager.Instance.UiTimer.TimerVisibility(false);
+            }
+        }
+        
+        if (questionPanel != null)
+        {
+            questionPanel.ButtonPanelVisibility(false);
+            questionPanel.gameObject.SetActive(false);
+        }
+            
+        if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
+            UIManager.Instance.UiPanelText.PanelTextVisibility(true);
+        
+        ShowMaxDialog(
+            "Time's up! You've taken too long to complete the verification process.\nSecurity protocol activated. Access denied.");
+        
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.Play("gameOverTimeout");
+            
+        Debug.Log("💀 GAME OVER - Timeout");
+        
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.EndingEye(false);
+            
+        StartCoroutine(LoadMainMenuAfterDelay(3f));
+    }
+
     void GameOverTouch()
     {
         if (currentState != GameState.Playing) return;
 
         currentState = GameState.GameOverTouch;
+        
+        // Arrêter le timer via UIManager
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.StopTimer();
+            if (UIManager.Instance.UiTimer != null)
+            {
+                UIManager.Instance.UiTimer.TimerVisibility(false);
+            }
+        }
+        
         ShowMaxDialog("Stop touching everything! Security has been alerted!");
 
         Debug.Log($"💀 GAME OVER - Touch limit ({touchCount} touches)");
@@ -654,7 +804,7 @@ public class TabletReceiver : MonoBehaviour
     {
         if (maxDialogText && UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
-            string textF = UIManager.Instance.UiPanelText.SetPanelText(text,0.05f);
+            string textF = UIManager.Instance.UiPanelText.SetPanelText(text, 0.05f);
             maxDialogText.text = "MAX: " + textF;
         }
     }
@@ -676,9 +826,13 @@ public class TabletReceiver : MonoBehaviour
 
     void OnGUI()
     {
-        GUI.Label(new Rect(10, 10, 400, 250),
+        float currentTimer = UIManager.Instance != null ? UIManager.Instance.currentTimer : 0f;
+        float maxTimer = UIManager.Instance != null ? UIManager.Instance.loseTimer : 900f;
+        
+        GUI.Label(new Rect(10, 10, 400, 280),
             $"<size=16><color=white>" +
             $"État: {currentState}\n" +
+            $"Timer: {currentTimer:F1}s / {maxTimer}s\n" +
             $"Key: {keyCompleted}\n" +
             $"Umbrella: {umbrellaCompleted}\n" +
             $"Ball: {ballCompleted}\n" +

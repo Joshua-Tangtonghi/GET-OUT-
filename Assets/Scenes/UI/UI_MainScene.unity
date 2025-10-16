@@ -128,7 +128,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 22875181}
-  - component: {fileID: 22875180}
   - component: {fileID: 22875182}
   m_Layer: 0
   m_Name: GameObject
@@ -137,19 +136,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &22875180
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 22875179}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d2011032e7040b3ad516be80b5765b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  button: {fileID: 0}
 --- !u!4 &22875181
 Transform:
   m_ObjectHideFlags: 0
@@ -253,7 +239,7 @@ MonoBehaviour:
   - name: start01
     clip: {fileID: 8300000, guid: b56af848f5aa7244e90146594f4c5f8f, type: 3}
     volume: 1
-    pitch: 0
+    pitch: 0.38
     loop: 0
     source: {fileID: 0}
   - name: start02
@@ -312,6 +298,12 @@ MonoBehaviour:
     source: {fileID: 0}
   - name: end
     clip: {fileID: 8300000, guid: de1eb54d7af241c4089aa00644cdac52, type: 3}
+    volume: 1
+    pitch: 0
+    loop: 0
+    source: {fileID: 0}
+  - name: gameOverTimeout
+    clip: {fileID: 8300000, guid: 51369ec49ac9e0e479e1cd086d5726a1, type: 3}
     volume: 1
     pitch: 0
     loop: 0
@@ -565,6 +557,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 117113306012212670, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
+      propertyPath: loseTimer
+      value: 420
+      objectReference: {fileID: 0}
     - target: {fileID: 457682963020391944, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
       propertyPath: m_IsActive
       value: 1
