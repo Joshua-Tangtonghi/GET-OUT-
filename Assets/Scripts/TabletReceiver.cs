@@ -554,6 +554,13 @@ public class TabletReceiver : MonoBehaviour
             Debug.Log("❌ Mauvaise réponse - Suspicion ajoutée");
         }
         
+        StartCoroutine(ReturnToPlayingAfterDelay(3f));
+
+    }
+    IEnumerator ReturnToPlayingAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
         currentState = GameState.Playing;
         lastActionTime = Time.time;
         currentCorrectAnswer = -1;
@@ -561,7 +568,6 @@ public class TabletReceiver : MonoBehaviour
         
         Debug.Log("🎮 Answer processed, returning to Playing state");
     }
-
     void CheckWinCondition()
     {
         if (keyCompleted && umbrellaCompleted && ballCompleted &&
