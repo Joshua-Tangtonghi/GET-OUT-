@@ -63,5 +63,10 @@ namespace _project.Scripts.Managers
 
             s.source.Stop();
         }
+        public float GetLength(string name)
+        {
+            Sound s = Array.Find(Sounds, sound => sound.name == name);
+            return s.clip.length;
+        }
     }
 }

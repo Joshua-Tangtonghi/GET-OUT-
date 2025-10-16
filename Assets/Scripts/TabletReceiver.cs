@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections;
 using UnityEngine.UIElements;
 using UnityEngine.UI;
+using _project.Scripts.Managers;
 
 public class TabletReceiver : MonoBehaviour
 {
@@ -124,19 +125,23 @@ public class TabletReceiver : MonoBehaviour
         currentState = GameState.Intro;
 
         ShowMaxDialog("Hello. I am M.A.X. I am here to be sure you are qualified to enter.");
-        yield return new WaitForSeconds(2f);
+        AudioManager.Instance.Play("start01");
+        yield return new WaitForSeconds(AudioManager.Instance.GetLength("start01"));
 
         ShowMaxDialog(
             "Of course, you are suppose to know the steps to unlock me.\nPlease press the button to go to the next step. Every step is separated by a button like this one");
-        yield return new WaitForSeconds(2f);
+        AudioManager.Instance.Play("start02");
+        yield return new WaitForSeconds(AudioManager.Instance.GetLength("start02"));
 
         ShowMaxDialog(
             "Well let's see if you are really authorized to enter. You know you need an umbrella right ?\nYou might want to check in that umbrella holder if you forgot yours.");
-        yield return new WaitForSeconds(3f);
+        AudioManager.Instance.Play("start03");
+        yield return new WaitForSeconds(AudioManager.Instance.GetLength("start03"));
 
         ShowMaxDialog(
             "It is basic knowledge to know which key is which to start your day right ?\nAnd a good day starts with an umbrella");
-        yield return new WaitForSeconds(3f);
+        AudioManager.Instance.Play("startTrial01");
+        yield return new WaitForSeconds(AudioManager.Instance.GetLength("startTrial01"));
 
         currentState = GameState.Playing;
         maxDialogText.text = "";
@@ -265,6 +270,7 @@ public class TabletReceiver : MonoBehaviour
     {
         ShowMaxDialog(
             "Ah ! I knew you forgot your umbrella ! Well now you have one. And a magnetic one with that !\nTo be honest, I am a little clogged... Maybe you can help me with that thing inside this pipe ?");
+        AudioManager.Instance.Play("finishTrial01");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 01 Finish - Umbrella completed");
         
@@ -275,6 +281,7 @@ public class TabletReceiver : MonoBehaviour
     {
         ShowMaxDialog(
             "So you get this useless lamp. Crazy that with your eyes only you can't see a message that\nobvious on the door. That make me think that the employes flash it on the painting a lot");
+        AudioManager.Instance.Play("finishTrial02");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 02 - Ball completed");
         
@@ -292,6 +299,7 @@ public class TabletReceiver : MonoBehaviour
     {
         ShowMaxDialog(
             "Congrats ! You are not the slowest human but not by far ! For me, it is easy to see it, but you might need something more to see the true beauty of the best employes");
+        AudioManager.Instance.Play("finishTrial03");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 03 Finish - Maze completed");
         
@@ -303,6 +311,7 @@ public class TabletReceiver : MonoBehaviour
         ShowMaxDialog(
             "Keep it up ! Now i'm sure that you know what's behind that hole. But before that, Security question !");
         lastActionTime = Time.time;
+        AudioManager.Instance.Play("finishTrial04");
         Debug.Log("✅ Trial 04 - Code completed");
         
         StartCoroutine(AskQuestionAfterDelay(5, 2f));
@@ -310,6 +319,7 @@ public class TabletReceiver : MonoBehaviour
 
     void OnCaptchaCompleted()
     {
+        AudioManager.Instance.Play("finishTrial05");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 05 - Captcha completed");
         CheckWinCondition();
@@ -328,25 +338,30 @@ public class TabletReceiver : MonoBehaviour
             case 1:
                 if (question1Asked) return;
                 question1Asked = true;
+                AudioManager.Instance.Play("question01");
                 AskQuestion1();
                 break;
             case 2:
                 if (question2Asked) return;
+                AudioManager.Instance.Play("question02");
                 question2Asked = true;
                 AskQuestion2();
                 break;
             case 3:
                 if (question3Asked) return;
+                AudioManager.Instance.Play("question03");
                 question3Asked = true;
                 AskQuestion3();
                 break;
             case 4:
                 if (question4Asked) return;
+                AudioManager.Instance.Play("question04");
                 question4Asked = true;
                 AskQuestion4();
                 break;
             case 5:
                 if (question5Asked) return;
+                AudioManager.Instance.Play("question05");
                 question5Asked = true;
                 AskQuestion5();
                 break;
@@ -578,7 +593,7 @@ public class TabletReceiver : MonoBehaviour
         currentState = GameState.GameWin;
         ShowMaxDialog(
             "Well done! You succeeded all the verification steps! Enjoy your day at work!\nSuper! I feel like you're ready to climb the career ladder! Keep going!");
-
+        AudioManager.Instance.Play("end");
         Debug.Log("🎉 GAME WIN !");
         StartCoroutine(LoadMainMenuAfterDelay(5f));
     }
@@ -600,7 +615,7 @@ public class TabletReceiver : MonoBehaviour
         
         ShowMaxDialog(
             "An intruder has been detected in front of our grand company D.O.O.R.H. Please do not panic,\nour teams will take care of it. Stay close to your station post and keep serving our society.");
-
+        AudioManager.Instance.Play("gameOverSuspicion");
         Debug.Log("💀 GAME OVER - Suspicion");
         StartCoroutine(LoadMainMenuAfterDelay(5f));
     }
