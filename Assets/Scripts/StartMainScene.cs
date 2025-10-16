@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace DefaultNamespace
 {
-    public class StartMenu: MonoBehaviour 
+    public class StartMainScene: MonoBehaviour 
     {
         public Button button;
 
@@ -14,7 +14,7 @@ namespace DefaultNamespace
         }
         private void OnClick()
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("UI_MainMenu");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("UI_MainScene");
         }
     }
 }
