@@ -633,7 +633,7 @@ public class TabletReceiver : MonoBehaviour
     {
         if (maxDialogText && UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
-            string textF = UIManager.Instance.UiPanelText.SetPanelText(text, 0.1f);
+            string textF = UIManager.Instance.UiPanelText.SetPanelText(text,0.05f);
             maxDialogText.text = "MAX: " + textF;
         }
     }
