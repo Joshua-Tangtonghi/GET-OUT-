@@ -186,133 +186,133 @@ MonoBehaviour:
     source: {fileID: 0}
   - name: finishTrial02
     clip: {fileID: 8300000, guid: 49b43524b43731e41a4dcfb9d6060752, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: finishTrial03
     clip: {fileID: 8300000, guid: 8e82467d87f205a4da7f883b15382659, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: finishTrial04
     clip: {fileID: 8300000, guid: f6148d96e60aeb546a701c28e7434ea1, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: finishTrial05
     clip: {fileID: 8300000, guid: e2d75f98c0977204f9ab6b7b58c1f765, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: gameOverSuspiscion
     clip: {fileID: 8300000, guid: 1a2b75122a493e0419923bc18e571819, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: gameOverTimeOut
     clip: {fileID: 8300000, guid: 51369ec49ac9e0e479e1cd086d5726a1, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: question01
     clip: {fileID: 8300000, guid: 99b8531d8112f6e49ac2f9a797bbb72e, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: question02
     clip: {fileID: 8300000, guid: 1c0bfc0ea507d904883e181833b08c20, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: question03
     clip: {fileID: 8300000, guid: 9270ffb5735bd144fb391de49502c47a, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: question04
     clip: {fileID: 8300000, guid: 208aee793f4ab6c448c5396eae012812, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: question05
     clip: {fileID: 8300000, guid: 67afadbd1a88b6444b0fcaec41862cba, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: start01
     clip: {fileID: 8300000, guid: b56af848f5aa7244e90146594f4c5f8f, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: start02
     clip: {fileID: 8300000, guid: 77af203d0a9c8a84b8a8fb857d8e1206, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: start03
     clip: {fileID: 8300000, guid: a47bbb80db5970f498441b51e0d1e9d9, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: startTrials01
     clip: {fileID: 8300000, guid: 7893b3008a1308c4189eb89dbb022d59, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: tipsTrials01
     clip: {fileID: 8300000, guid: 18b507dfbaff34d45892ce51f9e549e2, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: tipsTrials02
     clip: {fileID: 8300000, guid: 41a9874b1b72d374687ef91ced1ec27e, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: tipsTrials03
     clip: {fileID: 8300000, guid: f34d9f3f2ebe0974398c983534f9c3d2, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: tipsTrials04
     clip: {fileID: 8300000, guid: 1c9677b255122e84fbccade645c512a5, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
   - name: tipsTrials05
     clip: {fileID: 8300000, guid: f7c218ec7b04c8449aa2cefaeaad1603, type: 3}
-    volume: 0
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
-  - name: tipsTrials05
-    clip: {fileID: 8300000, guid: f7c218ec7b04c8449aa2cefaeaad1603, type: 3}
-    volume: 0
-    pitch: 0
-    loop: 0
-    source: {fileID: 0}
-  - name: 
+  - name: Trials05
     clip: {fileID: 8300000, guid: 0a2451c223537ac48a75e45d8007f8d6, type: 3}
-    volume: 0
+    volume: 1
+    pitch: 0
+    loop: 0
+    source: {fileID: 0}
+  - name: end
+    clip: {fileID: 8300000, guid: de1eb54d7af241c4089aa00644cdac52, type: 3}
+    volume: 1
     pitch: 0
     loop: 0
     source: {fileID: 0}
@@ -573,6 +573,14 @@ PrefabInstance:
       propertyPath: 'buttons.Array.data[0]'
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1109383143289341295, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4287036928
+      objectReference: {fileID: 0}
+    - target: {fileID: 2491323255308435158, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4287036928
+      objectReference: {fileID: 0}
     - target: {fileID: 3974577959021998299, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
       propertyPath: m_Camera
       value: 
@@ -673,10 +681,15 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8579184010176583907, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4287036928
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3468762840104004159, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
     m_RemovedGameObjects:
     - {fileID: 7811579621606553609, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
+    - {fileID: 7681573009590220223, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 4394958766397330293, guid: 8bddba8cc6f1dcb49a4afacec2dff0b8, type: 3}
       insertIndex: -1

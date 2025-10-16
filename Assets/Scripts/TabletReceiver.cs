@@ -140,8 +140,8 @@ public class TabletReceiver : MonoBehaviour
 
         ShowMaxDialog(
             "It is basic knowledge to know which key is which to start your day right ?\nAnd a good day starts with an umbrella");
-        AudioManager.Instance.Play("startTrial01");
-        yield return new WaitForSeconds(AudioManager.Instance.GetLength("startTrial01"));
+        AudioManager.Instance.Play("startTrials01");
+        yield return new WaitForSeconds(AudioManager.Instance.GetLength("startTrials01"));
 
         currentState = GameState.Playing;
         maxDialogText.text = "";
@@ -150,7 +150,7 @@ public class TabletReceiver : MonoBehaviour
     IEnumerator LoadMainMenuAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        UnityEngine.SceneManagement.SceneManager.LoadScene("UI_MainMenu");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("UI_MainEnd");
     }
 
     void Update()
