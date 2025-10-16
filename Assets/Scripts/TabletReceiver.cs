@@ -16,6 +16,7 @@ public class TabletReceiver : MonoBehaviour
     public float checkInterval = 0.5f;
     public float displayTime = 2f;
     public int maxTouchBeforeGameOver = 5;
+    public float tipsTime = 30f;
 
     [Header("Suspicion")] 
     public float maxSuspicious = 10f;
@@ -66,7 +67,10 @@ public class TabletReceiver : MonoBehaviour
 
     private int currentCorrectAnswer = -1;
     private int lastAnswer = -1;
-    bool flag = true;
+
+    // --- Audio/Speak lock
+    private bool isSpeaking = false;
+    public bool flag = true; 
 
     void Start()
     {
@@ -114,36 +118,59 @@ public class TabletReceiver : MonoBehaviour
         if (File.Exists(captchaPath)) File.Delete(captchaPath);
     }
 
+    // ---------------------------
+    // Speak helper - affiche le texte et joue l'audio, sans chevauchement
+    // ---------------------------
+    IEnumerator Speak(string text, string audioClipName)
+    {
+        // Si une autre phrase est en cours, attend qu'elle finisse
+        while (isSpeaking)
+            yield return null;
+
+        isSpeaking = true;
+
+        // Afficher le texte via UiPanelText (progressif ou direct selon impl)
+        ShowMaxDialog(text);
+
+        // Si on a un AudioManager et un clip, joue et attends la fin via WaitForSoundEnd (doit exister)
+        if (AudioManager.Instance != null && !string.IsNullOrEmpty(audioClipName))
+        {
+            AudioManager.Instance.Play(audioClipName);
+
+            // Utiliser la coroutine fournie par AudioManager pour attendre la fin du clip
+            // (AudioManager.WaitForSoundEnd doit être implémentée comme IEnumerator)
+            yield return StartCoroutine(AudioManager.Instance.WaitForSoundEnd(audioClipName));
+        }
+        else
+        {
+            // Fallback : durée approximative basée sur longueur du texte
+            float fallback = Mathf.Clamp(1f + text.Length * 0.03f, 1f, 6f);
+            yield return new WaitForSeconds(fallback);
+        }
+
+        // Nettoyage textuel
+        if (maxDialogText != null)
+            maxDialogText.text = "";
+
+        isSpeaking = false;
+    }
+
+    // ---------------------------
+    // Intro sequence (utilise Speak pour synchroniser audio + texte)
+    // ---------------------------
     IEnumerator IntroSequence()
     {
         currentState = GameState.Intro;
 
-        ShowMaxDialog("Hello. I am M.A.X. I am here to be sure you are qualified to enter.");
-        AudioManager.Instance.Play("start01");
-        yield return new WaitForSeconds(AudioManager.Instance.GetLength("start01"));
+        yield return StartCoroutine(Speak("Hello. I am M.A.X. I am here to be sure you are qualified to enter.", "start01"));
+        yield return StartCoroutine(Speak("Of course, you are suppose to know the steps to unlock me.\nPlease press the button to go to the next step. Every step is separated by a button like this one", "start02"));
+        yield return StartCoroutine(Speak("Well let's see if you are really authorized to enter. You know you need an umbrella right ? You might want to check in that umbrella holder if you forgot yours.", "start03"));
+        yield return StartCoroutine(Speak("It is basic knowledge to know which key is which to start your day right ?\nAnd a good day starts with an umbrella", "startTrials01"));
 
-        ShowMaxDialog(
-            "Of course, you are suppose to know the steps to unlock me.\nPlease press the button to go to the next step. Every step is separated by a button like this one");
-        AudioManager.Instance.Play("start02");
-        yield return new WaitForSeconds(AudioManager.Instance.GetLength("start02"));
-
-        ShowMaxDialog(
-            "Well let's see if you are really authorized to enter. You know you need an umbrella right ?\nYou might want to check in that umbrella holder if you forgot yours.");
-        AudioManager.Instance.Play("start03");
-        yield return new WaitForSeconds(AudioManager.Instance.GetLength("start03"));
-
-        ShowMaxDialog(
-            "It is basic knowledge to know which key is which to start your day right ?\nAnd a good day starts with an umbrella");
-        AudioManager.Instance.Play("startTrials01");
-        yield return new WaitForSeconds(AudioManager.Instance.GetLength("startTrials01"));
-
-        // Afficher le premier tip après l'intro
-        yield return StartCoroutine(ShowTip(1));
-
-        currentState = GameState.Playing;
         maxDialogText.text = "";
+        currentState = GameState.Playing;
         
-        // Démarrer le timer via UIManager
+        // Démarrer le timer APRÈS l'intro
         if (UIManager.Instance != null)
         {
             UIManager.Instance.StartTimer();
@@ -153,7 +180,21 @@ public class TabletReceiver : MonoBehaviour
             }
         }
         
-        Debug.Log("⏱️ Timer démarré via UIManager");
+        Debug.Log("⏱️ Timer démarré via UIManager APRÈS l'intro");
+        
+        // Démarrer la coroutine pour afficher le premier tip après tipsTime
+        StartCoroutine(ShowTipAfterDelay(1, tipsTime));
+    }
+
+    IEnumerator ShowTipAfterDelay(int tipNumber, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
+        // Vérifier si on est toujours en jeu avant d'afficher le tip
+        if (currentState == GameState.Playing)
+        {
+            yield return StartCoroutine(ShowTip(tipNumber));
+        }
     }
 
     IEnumerator ShowTip(int tipNumber)
@@ -166,40 +207,29 @@ public class TabletReceiver : MonoBehaviour
         switch (tipNumber)
         {
             case 1:
-                tipMessage = "Tip: You...You're alright ? Hard to remember something so obvious ? Well I can understand... Or not. \nHow do want to open a lock without a key ?";
+                tipMessage = "You...You're alright ? Hard to remember something so obvious ? Well I can understand... Or not. \nHow do want to open a lock without a key ?";
                 audioClip = "tipsTrials01";
                 break;
             case 2:
-                tipMessage = "Tip: You know that an umbrella can get you to place much higher ?";
+                tipMessage = "You know that an umbrella can get you to place much higher ?";
                 audioClip = "tipsTrials02";
                 break;
             case 3:
-                tipMessage = "Tip: Maybe you can try to use what you just got on the painting ?";
+                tipMessage = "Maybe you can try to use what you just got on the painting ?";
                 audioClip = "tipsTrials03";
                 break;
             case 4:
-                tipMessage = "Tip: Roses are red, Violets arer blue, the colors are shifted, glasses you should use.";
+                tipMessage = "Roses are red, Violets are blue, the colors are shifted, glasses you should use.";
                 audioClip = "tipsTrials04";
                 break;
             case 5:
-                tipMessage = "Tip:Come on ! What's in the box ? You should know.... It has not change since yesterday.";
+                tipMessage = "Come on ! What's in the box ? You should know.... It has not changed since yesterday.";
                 audioClip = "tipsTrials05";
                 break;
         }
         
-        ShowMaxDialog(tipMessage);
+        yield return StartCoroutine(Speak(tipMessage, audioClip));
         
-        if (AudioManager.Instance != null && !string.IsNullOrEmpty(audioClip))
-        {
-            AudioManager.Instance.Play(audioClip);
-            yield return new WaitForSeconds(AudioManager.Instance.GetLength(audioClip));
-        }
-        else
-        {
-            yield return new WaitForSeconds(3f);
-        }
-        
-        maxDialogText.text = "";
         currentState = GameState.Playing;
     }
 
@@ -273,11 +303,12 @@ public class TabletReceiver : MonoBehaviour
 
     void CheckFlags()
     {
-        if (!keyCompleted && File.Exists(keyPath))
+        if (flag)
         {
             keyCompleted = true;
             OnKeyCompleted();
             File.Delete(keyPath);
+            flag = false;
         }
 
         if (!umbrellaCompleted && File.Exists(umbrellaPath))
@@ -325,7 +356,6 @@ public class TabletReceiver : MonoBehaviour
 
     void OnKeyCompleted()
     {
-        ShowMaxDialog("Good! You found the key. Now let's see about that umbrella...");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 01 - Key completed");
         
@@ -334,61 +364,94 @@ public class TabletReceiver : MonoBehaviour
 
     void OnUmbrellaCompleted()
     {
-        ShowMaxDialog(
-            "Ah ! I knew you forgot your umbrella ! Well now you have one. And a magnetic one with that !\nTo be honest, I am a little clogged... Maybe you can help me with that thing inside this pipe ?");
-        AudioManager.Instance.Play("finishTrial01");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 01 Finish - Umbrella completed");
         
-        StartCoroutine(QuestionTipSequence(2, 3));
+        // Attendre la fin de l'audio avant la question
+        StartCoroutine(PlayAudioThenQuestionTip("finishTrial01", 2, 3));
     }
 
     void OnBallCompleted()
     {
-        ShowMaxDialog(
-            "So you get this useless lamp. Crazy that with your eyes only you can't see a message that\nobvious on the door. That make me think that the employes flash it on the painting a lot");
-        AudioManager.Instance.Play("finishTrial02");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 02 - Ball completed");
         
-        StartCoroutine(QuestionTipSequence(3, 4));
+        // Attendre la fin de l'audio avant la question
+        StartCoroutine(PlayAudioThenQuestionTip("finishTrial02", 3, 4));
     }
 
     void OnCodeUVCompleted()
     {
-        ShowMaxDialog("Now use it wisely on the painting...");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 03 - UV Code completed");
+        
+        // Pas de question ici, juste démarrer le tip après tipsTime
+        StartCoroutine(ShowTipAfterDelay(4, tipsTime));
     }
 
     void OnMazeCompleted()
     {
-        ShowMaxDialog(
-            "Congrats ! You are not the slowest human but not by far ! For me, it is easy to see it, but you might need something more to see the true beauty of the best employes");
-        AudioManager.Instance.Play("finishTrial03");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 03 Finish - Maze completed");
         
-        StartCoroutine(QuestionTipSequence(4, 5));
+        // Attendre la fin de l'audio avant la question
+        StartCoroutine(PlayAudioThenQuestionTip("finishTrial03", 4, 5));
     }
 
     void OnCodeCompleted()
     {
-        ShowMaxDialog(
-            "Keep it up ! Now i'm sure that you know what's behind that hole. But before that, Security question !");
         lastActionTime = Time.time;
-        AudioManager.Instance.Play("finishTrial04");
         Debug.Log("✅ Trial 04 - Code completed");
         
-        StartCoroutine(AskQuestionAfterDelay(5, 2f));
+        // Attendre la fin de l'audio avant la question
+        StartCoroutine(PlayAudioThenQuestion("finishTrial04", 5));
     }
 
     void OnCaptchaCompleted()
     {
-        AudioManager.Instance.Play("finishTrial05");
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 05 - Captcha completed");
+        
+        // Jouer l'audio de fin puis vérifier la condition de victoire
+        if (AudioManager.Instance != null)
+        {
+            // utiliser Speak pour garantir l'absence de chevauchement
+            StartCoroutine(FinishCaptchaAndCheckWin());
+        }
+        else
+        {
+            CheckWinCondition();
+        }
+    }
+
+    IEnumerator FinishCaptchaAndCheckWin()
+    {
+        yield return StartCoroutine(Speak("", "finishTrial05"));
         CheckWinCondition();
+    }
+
+    IEnumerator PlayAudioThenQuestionTip(string audioClip, int questionNumber, int tipNumber)
+    {
+        if (!string.IsNullOrEmpty(audioClip) && AudioManager.Instance != null)
+        {
+            // joue l'audio et attends sa fin proprement
+            yield return StartCoroutine(Speak("", audioClip));
+        }
+        
+        // Puis lancer la séquence question + tip
+        yield return StartCoroutine(QuestionTipSequence(questionNumber, tipNumber));
+    }
+
+    IEnumerator PlayAudioThenQuestion(string audioClip, int questionNumber)
+    {
+        if (!string.IsNullOrEmpty(audioClip) && AudioManager.Instance != null)
+        {
+            yield return StartCoroutine(Speak("", audioClip));
+        }
+        
+        // Puis poser la question
+        yield return new WaitForSeconds(2f);
+        AskQuestion(questionNumber);
     }
 
     IEnumerator QuestionTipSequence(int questionNumber, int tipNumber)
@@ -402,17 +465,11 @@ public class TabletReceiver : MonoBehaviour
             yield return null;
         }
         
-        // Attendre le délai de ReturnToPlayingAfterDelay
+        // Attendre le délai de ReturnToPlayingAfterDelay (simulate 3s wait)
         yield return new WaitForSeconds(3f);
         
-        // Afficher le tip
-        yield return StartCoroutine(ShowTip(tipNumber));
-    }
-
-    IEnumerator AskQuestionAfterDelay(int questionNumber, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        AskQuestion(questionNumber);
+        // Afficher le tip après tipsTime
+        StartCoroutine(ShowTipAfterDelay(tipNumber, tipsTime));
     }
 
     void AskQuestion(int questionNumber)
@@ -422,31 +479,32 @@ public class TabletReceiver : MonoBehaviour
             case 1:
                 if (question1Asked) return;
                 question1Asked = true;
-                AudioManager.Instance.Play("question01");
+                // jouer audio via Speak when showing question (we play here to match previous flow)
+                StartCoroutine(Speak("", "question01"));
                 AskQuestion1();
                 break;
             case 2:
                 if (question2Asked) return;
-                AudioManager.Instance.Play("question02");
                 question2Asked = true;
+                StartCoroutine(Speak("", "question02"));
                 AskQuestion2();
                 break;
             case 3:
                 if (question3Asked) return;
-                AudioManager.Instance.Play("question03");
                 question3Asked = true;
+                StartCoroutine(Speak("", "question03"));
                 AskQuestion3();
                 break;
             case 4:
                 if (question4Asked) return;
-                AudioManager.Instance.Play("question04");
                 question4Asked = true;
+                StartCoroutine(Speak("", "question04"));
                 AskQuestion4();
                 break;
             case 5:
                 if (question5Asked) return;
-                AudioManager.Instance.Play("question05");
                 question5Asked = true;
+                StartCoroutine(Speak("", "question05"));
                 AskQuestion5();
                 break;
         }
@@ -463,31 +521,19 @@ public class TabletReceiver : MonoBehaviour
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
             UIManager.Instance.UiPanelText.PanelTextVisibility(false);
-            Debug.Log("✅ Panel text caché");
         }
         
         if (questionPanel != null)
         {
             questionPanel.gameObject.SetActive(true);
-            Debug.Log("✅ Question panel activé");
-            
             questionPanel.ResetAnswer();
             questionPanel.SetQuestion("All right! Let's see your knowledge about D.O.O.R.H.! How many keys are there on me?");
-            Debug.Log("✅ Question définie");
             
-            string[] answers = { "10", "15", "20", "25" };
+            string[] answers = { "5", "10", "20", "50" };
             questionPanel.SetButtonsText(answers);
-            Debug.Log("✅ Textes des boutons définis");
             
             questionPanel.ButtonPanelVisibility(true);
-            Debug.Log("✅ Panel visible (animation lancée)");
         }
-        else
-        {
-            Debug.LogError("❌ questionPanel est NULL!");
-        }
-        
-        Debug.Log("=== AskQuestion1 END ===");
     }
 
     void AskQuestion2()
@@ -513,7 +559,6 @@ public class TabletReceiver : MonoBehaviour
             questionPanel.SetButtonsText(answers);
             
             questionPanel.ButtonPanelVisibility(true);
-            Debug.Log("✅ Question 2 affichée");
         }
     }
 
@@ -541,11 +586,10 @@ public class TabletReceiver : MonoBehaviour
             
             questionPanel.SetQuestion(questionPrefix + "Who are you?");
             
-            string[] answers = { "A visitor", "An employee", "A thief", "MAX" };
+            string[] answers = { "The boss", "An employee", "A security agent", "An intern" };
             questionPanel.SetButtonsText(answers);
             
             questionPanel.ButtonPanelVisibility(true);
-            Debug.Log("✅ Question 3 affichée");
         }
     }
 
@@ -572,7 +616,6 @@ public class TabletReceiver : MonoBehaviour
             questionPanel.SetButtonsText(answers);
             
             questionPanel.ButtonPanelVisibility(true);
-            Debug.Log("✅ Question 4 affichée");
         }
     }
 
@@ -599,7 +642,6 @@ public class TabletReceiver : MonoBehaviour
             questionPanel.SetButtonsText(answers);
             
             questionPanel.ButtonPanelVisibility(true);
-            Debug.Log("✅ Question 5 affichée");
         }
     }
 
@@ -626,28 +668,24 @@ public class TabletReceiver : MonoBehaviour
         {
             questionPanel.ButtonPanelVisibility(false);
             questionPanel.gameObject.SetActive(false);
-            Debug.Log("❌ Question panel hidden");
         }
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
-            Debug.Log("✅ Panel text shown");
         }
         
-        if (isCorrect)
+        if (!isCorrect)
         {
-            ShowMaxDialog("Very good! Let's continue!");
-            Debug.Log("✅ Bonne réponse !");
+            AddSuspicion(5f);
+            Debug.Log("❌ Mauvaise réponse - Suspicion ajoutée");
         }
         else
         {
-            AddSuspicion(5f);
-            ShowMaxDialog("Hmm... That's not quite right. Suspicious...");
-            Debug.Log("❌ Mauvaise réponse - Suspicion ajoutée");
+            Debug.Log("✅ Bonne réponse !");
         }
         
-        StartCoroutine(ReturnToPlayingAfterDelay(3f));
+        StartCoroutine(ReturnToPlayingAfterDelay(1f));
     }
     
     IEnumerator ReturnToPlayingAfterDelay(float delay)
@@ -677,7 +715,6 @@ public class TabletReceiver : MonoBehaviour
 
         currentState = GameState.GameWin;
         
-        // Arrêter le timer via UIManager
         if (UIManager.Instance != null)
         {
             UIManager.Instance.StopTimer();
@@ -687,10 +724,16 @@ public class TabletReceiver : MonoBehaviour
             }
         }
         
-        ShowMaxDialog(
-            "Well done! You succeeded all the verification steps! Enjoy your day at work!\nSuper! I feel like you're ready to climb the career ladder! Keep going!");
-        AudioManager.Instance.Play("end");
+        ShowMaxDialog("Well done! You succeeded all the verification steps! Enjoy your day at work!\nSuper! I feel like you're ready to climb the career ladder! Keep going!");
+        
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.Play("end");
+            
         Debug.Log("🎉 GAME WIN !");
+        
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.HappyEye();
+            
         StartCoroutine(LoadMainMenuAfterDelay(5f));
     }
 
@@ -700,7 +743,6 @@ public class TabletReceiver : MonoBehaviour
 
         currentState = GameState.GameOverSuspicion;
         
-        // Arrêter le timer via UIManager
         if (UIManager.Instance != null)
         {
             UIManager.Instance.StopTimer();
@@ -719,10 +761,16 @@ public class TabletReceiver : MonoBehaviour
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
         
-        ShowMaxDialog(
-            "An intruder has been detected in front of our grand company D.O.O.R.H. Please do not panic,\nour teams will take care of it. Stay close to your station post and keep serving our society.");
-        AudioManager.Instance.Play("gameOverSuspicion");
+        ShowMaxDialog("An intruder has been detected in front of our grand company D.O.O.R.H. Please do not panic,\nour teams will take care of it. Stay close to your station post and keep serving our society.");
+        
+        if (AudioManager.Instance != null)
+            StartCoroutine(Speak("", "gameOverSuspicion"));
+            
         Debug.Log("💀 GAME OVER - Suspicion");
+        
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.EndingEye(false);
+            
         StartCoroutine(LoadMainMenuAfterDelay(5f));
     }
 
@@ -732,7 +780,6 @@ public class TabletReceiver : MonoBehaviour
 
         currentState = GameState.GameOverTimeout;
         
-        // Arrêter le timer via UIManager
         if (UIManager.Instance != null)
         {
             UIManager.Instance.StopTimer();
@@ -751,11 +798,10 @@ public class TabletReceiver : MonoBehaviour
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
         
-        ShowMaxDialog(
-            "Time's up! You've taken too long to complete the verification process.\nSecurity protocol activated. Access denied.");
+        ShowMaxDialog("Please excuse us, but you did not meet our basic security quota asked by the company to each employee.\nWe will sadly have to send a security team to evacuate you.");
         
         if (AudioManager.Instance != null)
-            AudioManager.Instance.Play("gameOverTimeout");
+            StartCoroutine(Speak("", "gameOverTimeout"));
             
         Debug.Log("💀 GAME OVER - Timeout");
         
@@ -771,7 +817,6 @@ public class TabletReceiver : MonoBehaviour
 
         currentState = GameState.GameOverTouch;
         
-        // Arrêter le timer via UIManager
         if (UIManager.Instance != null)
         {
             UIManager.Instance.StopTimer();
@@ -784,10 +829,11 @@ public class TabletReceiver : MonoBehaviour
         ShowMaxDialog("Stop touching everything! Security has been alerted!");
 
         Debug.Log($"💀 GAME OVER - Touch limit ({touchCount} touches)");
-        StartCoroutine(LoadMainMenuAfterDelay(5f));
         
         if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
             UIManager.Instance.UiEye.EndingEye(false);
+            
+        StartCoroutine(LoadMainMenuAfterDelay(5f));
     }
 
     public void AddSuspicion(float amount = 1f)
@@ -798,6 +844,9 @@ public class TabletReceiver : MonoBehaviour
         lastActionTime = Time.time;
 
         Debug.Log($"Suspicion ajoutée: {amount} (Total: {suspicious}/{maxSuspicious})");
+        
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.SusEye();
     }
 
     void ShowMaxDialog(string text)
@@ -822,28 +871,5 @@ public class TabletReceiver : MonoBehaviour
             if (codeCompleted) completed++;
             if (captchaCompleted) completed++;
         }
-    }
-
-    void OnGUI()
-    {
-        float currentTimer = UIManager.Instance != null ? UIManager.Instance.currentTimer : 0f;
-        float maxTimer = UIManager.Instance != null ? UIManager.Instance.loseTimer : 900f;
-        
-        GUI.Label(new Rect(10, 10, 400, 280),
-            $"<size=16><color=white>" +
-            $"État: {currentState}\n" +
-            $"Timer: {currentTimer:F1}s / {maxTimer}s\n" +
-            $"Key: {keyCompleted}\n" +
-            $"Umbrella: {umbrellaCompleted}\n" +
-            $"Ball: {ballCompleted}\n" +
-            $"UV Code: {codeUVCompleted}\n" +
-            $"Maze: {mazeCompleted}\n" +
-            $"Code: {codeCompleted}\n" +
-            $"Captcha: {captchaCompleted}\n" +
-            $"Touch: {touchCount}/{maxTouchBeforeGameOver}\n" +
-            $"Suspicion: {suspicious:F1}/{maxSuspicious}\n" +
-            $"Q1: {question1Asked} | Q2: {question2Asked} | Q3: {question3Asked}\n" +
-            $"Q4: {question4Asked} | Q5: {question5Asked}" +
-            $"</color></size>");
     }
 }
