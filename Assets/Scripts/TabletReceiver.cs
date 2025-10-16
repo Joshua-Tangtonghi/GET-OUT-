@@ -5,6 +5,7 @@ using System.Collections;
 using UnityEngine.UIElements;
 using UnityEngine.UI;
 using _project.Scripts.Managers;
+using _project.Scripts.UiManagers;
 
 public class TabletReceiver : MonoBehaviour
 {
@@ -248,6 +249,7 @@ public class TabletReceiver : MonoBehaviour
             if (UIManager.Instance.currentTimer <= 0f)
             {
                 GameOverTimeout();
+                GameData.win = false;
                 return;
             }
         }
@@ -273,6 +275,7 @@ public class TabletReceiver : MonoBehaviour
         if (suspicious >= maxSuspicious)
         {
             GameOverSuspicion();
+            GameData.win = false;
         }
 
         if (Time.time - lastActionTime > displayTime)
@@ -296,6 +299,7 @@ public class TabletReceiver : MonoBehaviour
                 if (touchCount >= maxTouchBeforeGameOver)
                 {
                     GameOverTouch();
+                    GameData.win = false;
                 }
             }
         }
@@ -725,7 +729,8 @@ public class TabletReceiver : MonoBehaviour
         }
         
         ShowMaxDialog("Well done! You succeeded all the verification steps! Enjoy your day at work!\nSuper! I feel like you're ready to climb the career ladder! Keep going!");
-        
+        GameData.win = true;
+
         if (AudioManager.Instance != null)
             AudioManager.Instance.Play("end");
             
@@ -762,12 +767,13 @@ public class TabletReceiver : MonoBehaviour
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
         
         ShowMaxDialog("An intruder has been detected in front of our grand company D.O.O.R.H. Please do not panic,\nour teams will take care of it. Stay close to your station post and keep serving our society.");
-        
+
         if (AudioManager.Instance != null)
             StartCoroutine(Speak("", "gameOverSuspicion"));
             
         Debug.Log("💀 GAME OVER - Suspicion");
-        
+        GameData.win = false;
+
         if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
             UIManager.Instance.UiEye.EndingEye(false);
             
@@ -799,12 +805,14 @@ public class TabletReceiver : MonoBehaviour
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
         
         ShowMaxDialog("Please excuse us, but you did not meet our basic security quota asked by the company to each employee.\nWe will sadly have to send a security team to evacuate you.");
-        
+        GameData.win = false;
+
         if (AudioManager.Instance != null)
             StartCoroutine(Speak("", "gameOverTimeout"));
             
         Debug.Log("💀 GAME OVER - Timeout");
-        
+        GameData.win = false;
+
         if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
             UIManager.Instance.UiEye.EndingEye(false);
             
@@ -827,6 +835,7 @@ public class TabletReceiver : MonoBehaviour
         }
         
         ShowMaxDialog("Stop touching everything! Security has been alerted!");
+        UIManager.Instance.win = false;
 
         Debug.Log($"💀 GAME OVER - Touch limit ({touchCount} touches)");
         

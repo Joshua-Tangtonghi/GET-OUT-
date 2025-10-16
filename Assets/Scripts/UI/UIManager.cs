@@ -8,17 +8,20 @@ public class UIManager : MonoBehaviour
     public UiPanelText UiPanelText;
     public UiPannelButtons UiPannelButtons;
     public UiEye UiEye;
-    public UiCredits UiCredits;
 
     private float timer;
     private bool isTimerRunning = false;
     public float currentTimer;
     public float loseTimer = 900;
+    public bool win = true;
 
     private void Awake()
     {
         // Singleton pattern
-        if (Instance == null) Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+        }
         else Destroy(gameObject);
         if (UiTimer == null)
             UiTimer = GetComponentInChildren<UiTimer>();
@@ -28,10 +31,6 @@ public class UIManager : MonoBehaviour
             UiPannelButtons = GetComponentInChildren<UiPannelButtons>();
         if (UiEye == null)
             UiEye = GetComponentInChildren<UiEye>();
-        if (UiCredits == null)
-        {
-            UiCredits = GetComponentInChildren<UiCredits>();
-        }
     }
     private void Start()
     {
@@ -58,12 +57,12 @@ public class UIManager : MonoBehaviour
     {
         isTimerRunning = false;
     }
-    public void PlayCredit()
+    public void PlayCredits()
     {
-        UiPanelText.PanelTextVisibility(false);
-        UiPannelButtons.ButtonPanelVisibility(false);
-        UiEye.gameObject.SetActive(false);
-        StopTimer();
-        UiCredits.gameObject.SetActive(true);
+        gameObject.SetActive(false);
     }
+}
+public static class GameData
+{
+    public static bool win = true;
 }

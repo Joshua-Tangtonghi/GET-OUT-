@@ -1,15 +1,45 @@
 using UnityEngine;
 
-public class UiCredits : MonoBehaviour
+namespace _project.Scripts.UiManagers
 {
-    private Animator cAnim;
+    
+    public class UiCredits : MonoBehaviour
+    {
+        private Animator cAnim;
+        public GameObject gWin;
+        public GameObject gLose;
 
-    private void Awake()
-    {
-        cAnim = GetComponent<Animator>();
+        private void Start()
+        {
+            if (GameData.win)
+            {
+                Win();
+            }
+            else
+            {
+                Lose();
+            }
+        }
+        private void Awake()
+        {
+            cAnim = GetComponent<Animator>();
+        }
+        private void OnEnable()
+        {
+            cAnim.SetBool("Credits", true);
+        }
+        public void Win()
+        {
+            cAnim.SetTrigger("Win");
+            gWin.SetActive(true);
+            gLose.SetActive(false);
+        }
+        public void Lose()
+        {
+            cAnim.SetTrigger("Lose");
+            gWin.SetActive(true );
+            gLose.SetActive(false);
+        }
     }
-    private void OnEnable()
-    {
-        cAnim.SetBool("Credits", true);
-    }
+    
 }
