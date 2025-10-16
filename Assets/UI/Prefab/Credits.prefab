@@ -2743,6 +2743,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7665025288477093891}
     m_Modifications:
+    - target: {fileID: 2410859669700575049, guid: dfb158cb90e4ceb44b49b8c2df109ade, type: 3}
+      propertyPath: m_fontSize
+      value: 225
+      objectReference: {fileID: 0}
+    - target: {fileID: 2410859669700575049, guid: dfb158cb90e4ceb44b49b8c2df109ade, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 225
+      objectReference: {fileID: 0}
+    - target: {fileID: 2527511072870839039, guid: dfb158cb90e4ceb44b49b8c2df109ade, type: 3}
+      propertyPath: m_text
+      value: GAME OVER
+      objectReference: {fileID: 0}
+    - target: {fileID: 2527511072870839039, guid: dfb158cb90e4ceb44b49b8c2df109ade, type: 3}
+      propertyPath: m_fontSize
+      value: 225
+      objectReference: {fileID: 0}
+    - target: {fileID: 2527511072870839039, guid: dfb158cb90e4ceb44b49b8c2df109ade, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 225
+      objectReference: {fileID: 0}
     - target: {fileID: 2837040633790562085, guid: dfb158cb90e4ceb44b49b8c2df109ade, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2826,6 +2846,14 @@ PrefabInstance:
     - target: {fileID: 7393075616353477187, guid: dfb158cb90e4ceb44b49b8c2df109ade, type: 3}
       propertyPath: m_Name
       value: End
+      objectReference: {fileID: 0}
+    - target: {fileID: 7964580883076295852, guid: dfb158cb90e4ceb44b49b8c2df109ade, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8900114904826065296, guid: dfb158cb90e4ceb44b49b8c2df109ade, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
