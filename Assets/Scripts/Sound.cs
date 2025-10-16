@@ -10,5 +10,9 @@ public class Sound
     [Range(0f, 1f)] public float pitch = 1f;
     public bool loop = false;
     [HideInInspector] public AudioSource source;
-    
+
+    public float GetLength()
+    {
+        return clip.length;
+    }
 }
