@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using TMPro;
 using System.IO;
 using System.Collections;
@@ -640,7 +641,7 @@ public class TabletReceiver : MonoBehaviour
             questionPanel.ButtonPanelVisibility(true);
         }
 
-        Debug.Log("⚠️ Question 5 posée - Après réponse correcte → Question 6");
+        Debug.Log("⚠️ Question 5 posée - Après réponse → Question 6");
     }
 
     void AskQuestion6()
@@ -664,13 +665,13 @@ public class TabletReceiver : MonoBehaviour
             questionPanel.ResetAnswer();
             questionPanel.SetQuestion("What object IS in the hole between these choices:");
 
-            string[] answers = { "A efgece", "B efhzhf", "C ehfzihdfp", "D erfihzofj" };
+            string[] answers = { "A Coin", "B A Rat", "C Fan", "D Key" };
             questionPanel.SetButtonsText(answers);
 
             questionPanel.ButtonPanelVisibility(true);
         }
 
-        Debug.Log("⚠️ ATTENTION: Répondre correctement à cette question déclenche la VICTOIRE!");
+        Debug.Log("⚠️ ATTENTION: Répondre à cette question déclenche la suite!");
     }
 
     void CheckPlayerAnswer()
@@ -690,47 +691,56 @@ public class TabletReceiver : MonoBehaviour
 
     void OnAnswerSelected(bool isCorrect)
     {
-        Debug.Log($"📝 OnAnswerSelected called! IsCorrect: {isCorrect}, Question6Asked: {question6Asked}");
-
+        Debug.Log($"📝 OnAnswerSelected! IsCorrect: {isCorrect}, Q4: {question4Asked}, Q5: {question5Asked}, Q6: {question6Asked}");
+        
         if (questionPanel != null)
         {
             questionPanel.ButtonPanelVisibility(false);
             questionPanel.gameObject.SetActive(false);
         }
-
+        
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
         }
-
+        
         if (!isCorrect)
         {
             AddSuspicion(5f);
             Debug.Log("❌ Mauvaise réponse - Suspicion ajoutée");
-            StartCoroutine(ReturnToPlayingAfterDelay(1f));
+            
+            if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+                UIManager.Instance.UiEye.SusEye();
         }
         else
         {
             Debug.Log("✅ Bonne réponse !");
             if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
                 UIManager.Instance.UiEye.HappyEye();
-
-            // Si c'est la question 5, déclencher la question 6
-            if (question5Asked && !question6Asked && currentCorrectAnswer == 3)
-            {
-                Debug.Log("🎯 Question 5 réussie → Déclenchement Question 6");
-                StartCoroutine(ReturnToPlayingThenAskQuestion6(1f));
-            }
-            // Si c'est la question 6, déclencher la victoire
-            else if (question6Asked && currentCorrectAnswer == 2)
-            {
-                Debug.Log("🎉 Question 6 réussie → VICTOIRE!");
-                StartCoroutine(ReturnToPlayingThenWin(1f));
-            }
-            else
-            {
-                StartCoroutine(ReturnToPlayingAfterDelay(1f));
-            }
+        }
+        
+        // CORRECTION ICI : Vérifier quelle question vient d'être répondue
+        // Question 4 → déclencher Question 5
+        if (question4Asked && !question5Asked)
+        {
+            Debug.Log("🎯 Question 4 répondue → Déclenchement Question 5");
+            StartCoroutine(ReturnToPlayingThenAskQuestion(6f, 5));
+        }
+        // Question 5 → déclencher Question 6
+        else if (question5Asked && !question6Asked)
+        {
+            Debug.Log("🎯 Question 5 répondue → Déclenchement Question 6");
+            StartCoroutine(ReturnToPlayingThenAskQuestion(6f, 6));
+        }
+        // Question 6 → déclencher la victoire
+        else if (question6Asked)
+        {
+            Debug.Log("🎉 Question 6 répondue → VICTOIRE!");
+            StartCoroutine(ReturnToPlayingThenWin(1f));
+        }
+        else
+        {
+            StartCoroutine(ReturnToPlayingAfterDelay(1f));
         }
     }
 
@@ -746,7 +756,7 @@ public class TabletReceiver : MonoBehaviour
         Debug.Log("🎮 Answer processed, returning to Playing state");
     }
 
-    IEnumerator ReturnToPlayingThenAskQuestion6(float delay)
+    IEnumerator ReturnToPlayingThenAskQuestion(float delay, int questionNumber)
     {
         yield return new WaitForSeconds(delay);
 
@@ -755,10 +765,10 @@ public class TabletReceiver : MonoBehaviour
         currentCorrectAnswer = -1;
         lastAnswer = -1;
 
-        Debug.Log("🎮 Déclenchement de la Question 6 finale!");
+        Debug.Log($"🎮 Déclenchement de la Question {questionNumber}!");
 
-        // Déclencher la question 6
-        AskQuestion(6);
+        // Déclencher la question
+        AskQuestion(questionNumber);
     }
 
     IEnumerator ReturnToPlayingThenWin(float delay)
@@ -965,25 +975,25 @@ public class TabletReceiver : MonoBehaviour
         }
     }
 
-    // void OnGUI()
-    // {
-    //     float currentTimer = UIManager.Instance != null ? UIManager.Instance.currentTimer : 0f;
-    //     float maxTimer = UIManager.Instance != null ? UIManager.Instance.loseTimer : 900f;
-    //     
-    //     GUI.Label(new Rect(10, 10, 400, 260),
-    //         $"<size=16><color=white>" +
-    //         $"État: {currentState}\n" +
-    //         $"Timer: {currentTimer:F1}s / {maxTimer}s\n" +
-    //         $"Umbrella: {umbrellaCompleted}\n" +
-    //         $"Ball: {ballCompleted}\n" +
-    //         $"Maze: {mazeCompleted}\n" +
-    //         $"Code: {codeCompleted}\n" +
-    //         $"Touch: {touchCount}/{maxTouchBeforeGameOver}\n" +
-    //         $"Suspicion: {suspicious:F1}/{maxSuspicious}\n" +
-    //         $"Q1: {question1Asked} | Q2: {question2Asked}\n" +
-    //         $"Q3: {question3Asked} | Q4: {question4Asked}\n" +
-    //         $"Q5: {question5Asked} | Q6: {question6Asked}\n" +
-    //         $"Is Speaking: {isSpeaking}" +
-    //         $"</color></size>");
-    // }
+    void OnGUI()
+    {
+        float currentTimer = UIManager.Instance != null ? UIManager.Instance.currentTimer : 0f;
+        float maxTimer = UIManager.Instance != null ? UIManager.Instance.loseTimer : 900f;
+        
+        GUI.Label(new Rect(10, 10, 400, 260),
+            $"<size=16><color=white>" +
+            $"État: {currentState}\n" +
+            $"Timer: {currentTimer:F1}s / {maxTimer}s\n" +
+            $"Umbrella: {umbrellaCompleted}\n" +
+            $"Ball: {ballCompleted}\n" +
+            $"Maze: {mazeCompleted}\n" +
+            $"Code: {codeCompleted}\n" +
+            $"Touch: {touchCount}/{maxTouchBeforeGameOver}\n" +
+            $"Suspicion: {suspicious:F1}/{maxSuspicious}\n" +
+            $"Q1: {question1Asked} | Q2: {question2Asked}\n" +
+            $"Q3: {question3Asked} | Q4: {question4Asked}\n" +
+            $"Q5: {question5Asked} | Q6: {question6Asked}\n" +
+            $"Is Speaking: {isSpeaking}" +
+            $"</color></size>");
+    }
 }

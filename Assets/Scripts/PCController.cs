@@ -46,8 +46,7 @@ public class PCController : MonoBehaviour
             statusText.text = "drapeau clé envoyé !";
         }
 
-        {
-        }
+    
     }
 
     void PushFlag(string fileName)
