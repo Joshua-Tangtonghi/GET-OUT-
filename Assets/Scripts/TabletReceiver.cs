@@ -5,7 +5,6 @@ using System.Collections;
 using UnityEngine.UIElements;
 using UnityEngine.UI;
 using _project.Scripts.Managers;
-using _project.Scripts.UiManagers;
 
 public class TabletReceiver : MonoBehaviour
 {
@@ -44,21 +43,15 @@ public class TabletReceiver : MonoBehaviour
     private string basePath =
         "/storage/emulated/0/Android/data/com.UnityTechnologies.com.unity.template.urpblank/files/";
 
-    private string keyPath;
     private string umbrellaPath;
     private string ballPath;
-    private string codeUVPath;
     private string mazePath;
     private string codePath;
-    private string captchaPath;
 
-    private bool keyCompleted = false;
     private bool umbrellaCompleted = false;
     private bool ballCompleted = false;
-    private bool codeUVCompleted = false;
     private bool mazeCompleted = false;
     private bool codeCompleted = false;
-    private bool captchaCompleted = false;
 
     private bool question1Asked = false;
     private bool question2Asked = false;
@@ -69,9 +62,8 @@ public class TabletReceiver : MonoBehaviour
     private int currentCorrectAnswer = -1;
     private int lastAnswer = -1;
 
-    // --- Audio/Speak lock
+    // Audio/Speak lock
     private bool isSpeaking = false;
-    public bool flag = true; 
 
     void Start()
     {
@@ -93,13 +85,10 @@ public class TabletReceiver : MonoBehaviour
 
     void InitializePaths()
     {
-        keyPath = Path.Combine(basePath, "key.flag");
         umbrellaPath = Path.Combine(basePath, "umbrella.flag");
         ballPath = Path.Combine(basePath, "ball.flag");
-        codeUVPath = Path.Combine(basePath, "codeUV.flag");
         mazePath = Path.Combine(basePath, "maze.flag");
         codePath = Path.Combine(basePath, "code.flag");
-        captchaPath = Path.Combine(basePath, "captcha.flag");
 
         string directory = Path.GetDirectoryName(basePath);
         if (!Directory.Exists(directory))
@@ -110,62 +99,51 @@ public class TabletReceiver : MonoBehaviour
 
     void CleanupOldFlags()
     {
-        if (File.Exists(keyPath)) File.Delete(keyPath);
         if (File.Exists(umbrellaPath)) File.Delete(umbrellaPath);
         if (File.Exists(ballPath)) File.Delete(ballPath);
-        if (File.Exists(codeUVPath)) File.Delete(codeUVPath);
         if (File.Exists(mazePath)) File.Delete(mazePath);
         if (File.Exists(codePath)) File.Delete(codePath);
-        if (File.Exists(captchaPath)) File.Delete(captchaPath);
     }
 
-    // ---------------------------
-    // Speak helper - affiche le texte et joue l'audio, sans chevauchement
-    // ---------------------------
+    // Speak helper - évite les chevauchements audio
     IEnumerator Speak(string text, string audioClipName)
     {
-        // Si une autre phrase est en cours, attend qu'elle finisse
-        while (isSpeaking)
-            yield return null;
-
+        while (isSpeaking) yield return null;
+        
         isSpeaking = true;
 
-        // Afficher le texte via UiPanelText (progressif ou direct selon impl)
-        ShowMaxDialog(text);
+        if (!string.IsNullOrEmpty(text))
+        {
+            ShowMaxDialog(text);
+        }
 
-        // Si on a un AudioManager et un clip, joue et attends la fin via WaitForSoundEnd (doit exister)
         if (AudioManager.Instance != null && !string.IsNullOrEmpty(audioClipName))
         {
             AudioManager.Instance.Play(audioClipName);
-
-            // Utiliser la coroutine fournie par AudioManager pour attendre la fin du clip
-            // (AudioManager.WaitForSoundEnd doit être implémentée comme IEnumerator)
             yield return StartCoroutine(AudioManager.Instance.WaitForSoundEnd(audioClipName));
         }
-        else
+        else if (!string.IsNullOrEmpty(text))
         {
-            // Fallback : durée approximative basée sur longueur du texte
             float fallback = Mathf.Clamp(1f + text.Length * 0.03f, 1f, 6f);
             yield return new WaitForSeconds(fallback);
         }
 
-        // Nettoyage textuel
-        if (maxDialogText != null)
+        if (maxDialogText != null && !string.IsNullOrEmpty(text))
             maxDialogText.text = "";
 
         isSpeaking = false;
     }
 
-    // ---------------------------
-    // Intro sequence (utilise Speak pour synchroniser audio + texte)
-    // ---------------------------
     IEnumerator IntroSequence()
     {
         currentState = GameState.Intro;
 
         yield return StartCoroutine(Speak("Hello. I am M.A.X. I am here to be sure you are qualified to enter.", "start01"));
+        
         yield return StartCoroutine(Speak("Of course, you are suppose to know the steps to unlock me.\nPlease press the button to go to the next step. Every step is separated by a button like this one", "start02"));
+        
         yield return StartCoroutine(Speak("Well let's see if you are really authorized to enter. You know you need an umbrella right ? You might want to check in that umbrella holder if you forgot yours.", "start03"));
+        
         yield return StartCoroutine(Speak("It is basic knowledge to know which key is which to start your day right ?\nAnd a good day starts with an umbrella", "startTrials01"));
 
         maxDialogText.text = "";
@@ -183,7 +161,7 @@ public class TabletReceiver : MonoBehaviour
         
         Debug.Log("⏱️ Timer démarré via UIManager APRÈS l'intro");
         
-        // Démarrer la coroutine pour afficher le premier tip après tipsTime
+        // Démarrer le premier tip après tipsTime secondes
         StartCoroutine(ShowTipAfterDelay(1, tipsTime));
     }
 
@@ -191,7 +169,6 @@ public class TabletReceiver : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         
-        // Vérifier si on est toujours en jeu avant d'afficher le tip
         if (currentState == GameState.Playing)
         {
             yield return StartCoroutine(ShowTip(tipNumber));
@@ -230,7 +207,6 @@ public class TabletReceiver : MonoBehaviour
         }
         
         yield return StartCoroutine(Speak(tipMessage, audioClip));
-        
         currentState = GameState.Playing;
     }
 
@@ -249,7 +225,6 @@ public class TabletReceiver : MonoBehaviour
             if (UIManager.Instance.currentTimer <= 0f)
             {
                 GameOverTimeout();
-                GameData.win = false;
                 return;
             }
         }
@@ -275,7 +250,6 @@ public class TabletReceiver : MonoBehaviour
         if (suspicious >= maxSuspicious)
         {
             GameOverSuspicion();
-            GameData.win = false;
         }
 
         if (Time.time - lastActionTime > displayTime)
@@ -299,7 +273,6 @@ public class TabletReceiver : MonoBehaviour
                 if (touchCount >= maxTouchBeforeGameOver)
                 {
                     GameOverTouch();
-                    GameData.win = false;
                 }
             }
         }
@@ -307,14 +280,6 @@ public class TabletReceiver : MonoBehaviour
 
     void CheckFlags()
     {
-        if (flag)
-        {
-            keyCompleted = true;
-            OnKeyCompleted();
-            File.Delete(keyPath);
-            flag = false;
-        }
-
         if (!umbrellaCompleted && File.Exists(umbrellaPath))
         {
             umbrellaCompleted = true;
@@ -327,13 +292,6 @@ public class TabletReceiver : MonoBehaviour
             ballCompleted = true;
             OnBallCompleted();
             File.Delete(ballPath);
-        }
-
-        if (!codeUVCompleted && File.Exists(codeUVPath))
-        {
-            codeUVCompleted = true;
-            OnCodeUVCompleted();
-            File.Delete(codeUVPath);
         }
 
         if (!mazeCompleted && File.Exists(mazePath))
@@ -349,30 +307,16 @@ public class TabletReceiver : MonoBehaviour
             OnCodeCompleted();
             File.Delete(codePath);
         }
-
-        if (!captchaCompleted && File.Exists(captchaPath))
-        {
-            captchaCompleted = true;
-            OnCaptchaCompleted();
-            File.Delete(captchaPath);
-        }
-    }
-
-    void OnKeyCompleted()
-    {
-        lastActionTime = Time.time;
-        Debug.Log("✅ Trial 01 - Key completed");
-        
-        StartCoroutine(QuestionTipSequence(1, 2));
     }
 
     void OnUmbrellaCompleted()
     {
         lastActionTime = Time.time;
-        Debug.Log("✅ Trial 01 Finish - Umbrella completed");
+        Debug.Log("✅ Trial 01 - Umbrella completed");
         
-        // Attendre la fin de l'audio avant la question
-        StartCoroutine(PlayAudioThenQuestionTip("finishTrial01", 2, 3));
+        StartCoroutine(SpeakThenQuestionTip(
+            "Ah ! I knew you forgot your umbrella ! Well now you have one. And a magnetic one with that !To be honest, I am a little clogged... Maybe you can help me with that thing inside this pipe ?",
+            "finishTrial01", 1, 2));
     }
 
     void OnBallCompleted()
@@ -380,26 +324,19 @@ public class TabletReceiver : MonoBehaviour
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 02 - Ball completed");
         
-        // Attendre la fin de l'audio avant la question
-        StartCoroutine(PlayAudioThenQuestionTip("finishTrial02", 3, 4));
-    }
-
-    void OnCodeUVCompleted()
-    {
-        lastActionTime = Time.time;
-        Debug.Log("✅ Trial 03 - UV Code completed");
-        
-        // Pas de question ici, juste démarrer le tip après tipsTime
-        StartCoroutine(ShowTipAfterDelay(4, tipsTime));
+        StartCoroutine(SpeakThenQuestionTip(
+            "So you get this useless lamp. Crazy that with your eyes only you can't see a message that obvious on the door. That make me think that the employes flash it on the painting a lot",
+            "finishTrial02", 2, 3));
     }
 
     void OnMazeCompleted()
     {
         lastActionTime = Time.time;
-        Debug.Log("✅ Trial 03 Finish - Maze completed");
+        Debug.Log("✅ Trial 03 - Maze completed");
         
-        // Attendre la fin de l'audio avant la question
-        StartCoroutine(PlayAudioThenQuestionTip("finishTrial03", 4, 5));
+        StartCoroutine(SpeakThenQuestionTip(
+            "Congrats ! You are not the slowest human but not by far ! For me, it is easy to see it, but you might need something more to see the true beauty of the best employes",
+            "finishTrial03", 3, 4));
     }
 
     void OnCodeCompleted()
@@ -407,53 +344,27 @@ public class TabletReceiver : MonoBehaviour
         lastActionTime = Time.time;
         Debug.Log("✅ Trial 04 - Code completed");
         
-        // Attendre la fin de l'audio avant la question
-        StartCoroutine(PlayAudioThenQuestion("finishTrial04", 5));
+        StartCoroutine(SpeakThenFinalQuestion(
+            "Keep it up ! Now i'm sure that you know what's behind that hole. But before that, Security question !",
+            "finishTrial04", 5));
     }
 
-    void OnCaptchaCompleted()
+    IEnumerator SpeakThenFinalQuestion(string text, string audioClip, int questionNumber)
     {
-        lastActionTime = Time.time;
-        Debug.Log("✅ Trial 05 - Captcha completed");
-        
-        // Jouer l'audio de fin puis vérifier la condition de victoire
-        if (AudioManager.Instance != null)
-        {
-            // utiliser Speak pour garantir l'absence de chevauchement
-            StartCoroutine(FinishCaptchaAndCheckWin());
-        }
-        else
-        {
-            CheckWinCondition();
-        }
+        yield return StartCoroutine(Speak(text, audioClip));
+        yield return new WaitForSeconds(2f);
+        AskQuestion(questionNumber);
     }
 
-    IEnumerator FinishCaptchaAndCheckWin()
+    IEnumerator SpeakThenQuestionTip(string text, string audioClip, int questionNumber, int tipNumber)
     {
-        yield return StartCoroutine(Speak("", "finishTrial05"));
-        CheckWinCondition();
-    }
-
-    IEnumerator PlayAudioThenQuestionTip(string audioClip, int questionNumber, int tipNumber)
-    {
-        if (!string.IsNullOrEmpty(audioClip) && AudioManager.Instance != null)
-        {
-            // joue l'audio et attends sa fin proprement
-            yield return StartCoroutine(Speak("", audioClip));
-        }
-        
-        // Puis lancer la séquence question + tip
+        yield return StartCoroutine(Speak(text, audioClip));
         yield return StartCoroutine(QuestionTipSequence(questionNumber, tipNumber));
     }
 
-    IEnumerator PlayAudioThenQuestion(string audioClip, int questionNumber)
+    IEnumerator SpeakThenQuestion(string text, string audioClip, int questionNumber)
     {
-        if (!string.IsNullOrEmpty(audioClip) && AudioManager.Instance != null)
-        {
-            yield return StartCoroutine(Speak("", audioClip));
-        }
-        
-        // Puis poser la question
+        yield return StartCoroutine(Speak(text, audioClip));
         yield return new WaitForSeconds(2f);
         AskQuestion(questionNumber);
     }
@@ -469,10 +380,10 @@ public class TabletReceiver : MonoBehaviour
             yield return null;
         }
         
-        // Attendre le délai de ReturnToPlayingAfterDelay (simulate 3s wait)
-        yield return new WaitForSeconds(3f);
+        // Attendre 1 seconde après la réponse
+        yield return new WaitForSeconds(1f);
         
-        // Afficher le tip après tipsTime
+        // Afficher le tip après tipsTime secondes
         StartCoroutine(ShowTipAfterDelay(tipNumber, tipsTime));
     }
 
@@ -483,34 +394,42 @@ public class TabletReceiver : MonoBehaviour
             case 1:
                 if (question1Asked) return;
                 question1Asked = true;
-                // jouer audio via Speak when showing question (we play here to match previous flow)
-                StartCoroutine(Speak("", "question01"));
-                AskQuestion1();
+                StartCoroutine(SpeakThenShowQuestion("", "question01", 1));
                 break;
             case 2:
                 if (question2Asked) return;
                 question2Asked = true;
-                StartCoroutine(Speak("", "question02"));
-                AskQuestion2();
+                StartCoroutine(SpeakThenShowQuestion("", "question02", 2));
                 break;
             case 3:
                 if (question3Asked) return;
                 question3Asked = true;
-                StartCoroutine(Speak("", "question03"));
-                AskQuestion3();
+                StartCoroutine(SpeakThenShowQuestion("", "question03", 3));
                 break;
             case 4:
                 if (question4Asked) return;
                 question4Asked = true;
-                StartCoroutine(Speak("", "question04"));
-                AskQuestion4();
+                StartCoroutine(SpeakThenShowQuestion("", "question04", 4));
                 break;
             case 5:
                 if (question5Asked) return;
                 question5Asked = true;
-                StartCoroutine(Speak("", "question05"));
-                AskQuestion5();
+                StartCoroutine(SpeakThenShowQuestion("", "question05", 5));
                 break;
+        }
+    }
+
+    IEnumerator SpeakThenShowQuestion(string text, string audioClip, int questionNum)
+    {
+        yield return StartCoroutine(Speak(text, audioClip));
+        
+        switch (questionNum)
+        {
+            case 1: AskQuestion1(); break;
+            case 2: AskQuestion2(); break;
+            case 3: AskQuestion3(); break;
+            case 4: AskQuestion4(); break;
+            case 5: AskQuestion5(); break;
         }
     }
 
@@ -590,7 +509,7 @@ public class TabletReceiver : MonoBehaviour
             
             questionPanel.SetQuestion(questionPrefix + "Who are you?");
             
-            string[] answers = { "The boss", "An employee", "A security agent", "An intern" };
+            string[] answers = { "The boss", "An employee", "A Thief", "MAX" };
             questionPanel.SetButtonsText(answers);
             
             questionPanel.ButtonPanelVisibility(true);
@@ -625,10 +544,10 @@ public class TabletReceiver : MonoBehaviour
 
     void AskQuestion5()
     {
-        Debug.Log("=== AskQuestion5 START ===");
+        Debug.Log("=== AskQuestion5 START (FINAL QUESTION) ===");
         
         currentState = GameState.WaitingForAnswer;
-        currentCorrectAnswer = 3;
+        currentCorrectAnswer = 3; // "Please don't"
         lastAnswer = -1;
         
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
@@ -647,6 +566,8 @@ public class TabletReceiver : MonoBehaviour
             
             questionPanel.ButtonPanelVisibility(true);
         }
+        
+        Debug.Log("⚠️ ATTENTION: Répondre correctement à cette question déclenche la VICTOIRE!");
     }
 
     void CheckPlayerAnswer()
@@ -689,7 +610,15 @@ public class TabletReceiver : MonoBehaviour
             Debug.Log("✅ Bonne réponse !");
         }
         
-        StartCoroutine(ReturnToPlayingAfterDelay(1f));
+        // Si c'est la question 5 (dernière question), déclencher la victoire
+        if (question5Asked && isCorrect)
+        {
+            StartCoroutine(ReturnToPlayingThenWin(1f));
+        }
+        else
+        {
+            StartCoroutine(ReturnToPlayingAfterDelay(1f));
+        }
     }
     
     IEnumerator ReturnToPlayingAfterDelay(float delay)
@@ -704,12 +633,28 @@ public class TabletReceiver : MonoBehaviour
         Debug.Log("🎮 Answer processed, returning to Playing state");
     }
 
+    IEnumerator ReturnToPlayingThenWin(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
+        currentState = GameState.Playing;
+        lastActionTime = Time.time;
+        currentCorrectAnswer = -1;
+        lastAnswer = -1;
+        
+        Debug.Log("🎮 Answer processed, triggering WIN!");
+        
+        // Déclencher immédiatement la victoire
+        GameWin();
+    }
+
     void CheckWinCondition()
     {
-        if (keyCompleted && umbrellaCompleted && ballCompleted &&
-            codeUVCompleted && mazeCompleted && codeCompleted && captchaCompleted)
+        // La victoire est maintenant déclenchée uniquement après la réponse à la question 5
+        // Cette fonction reste pour compatibilité mais n'est plus utilisée pour gagner
+        if (umbrellaCompleted && ballCompleted && mazeCompleted && codeCompleted)
         {
-            GameWin();
+            Debug.Log("✅ Tous les flags complétés ! En attente de la question 5...");
         }
     }
 
@@ -728,18 +673,23 @@ public class TabletReceiver : MonoBehaviour
             }
         }
         
-        ShowMaxDialog("Well done! You succeeded all the verification steps! Enjoy your day at work!\nSuper! I feel like you're ready to climb the career ladder! Keep going!");
-        GameData.win = true;
+        StartCoroutine(WinSequence());
+    }
 
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.Play("end");
-            
+    IEnumerator WinSequence()
+    {
+        yield return StartCoroutine(Speak("Well done! You succeeded all the verification steps! Enjoy your day at work!", "finishTrial05"));
+        
+        yield return StartCoroutine(Speak("Super! I feel like you're ready to climb the career ladder! Keep going!", "end"));
+        
         Debug.Log("🎉 GAME WIN !");
         
         if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
             UIManager.Instance.UiEye.HappyEye();
             
-        StartCoroutine(LoadMainMenuAfterDelay(5f));
+        yield return new WaitForSeconds(2f);
+        
+        UnityEngine.SceneManagement.SceneManager.LoadScene("UI_MainEnd");
     }
 
     void GameOverSuspicion()
@@ -766,18 +716,9 @@ public class TabletReceiver : MonoBehaviour
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
         
-        ShowMaxDialog("An intruder has been detected in front of our grand company D.O.O.R.H. Please do not panic,\nour teams will take care of it. Stay close to your station post and keep serving our society.");
-
-        if (AudioManager.Instance != null)
-            StartCoroutine(Speak("", "gameOverSuspicion"));
-            
+        StartCoroutine(GameOverSequence("An intruder has been detected in front of our grand company D.O.O.R.H. Please do not panic,\nour teams will take care of it. Stay close to your station post and keep serving our society.", "gameOverSuspicion", false));
+        
         Debug.Log("💀 GAME OVER - Suspicion");
-        GameData.win = false;
-
-        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
-            UIManager.Instance.UiEye.EndingEye(false);
-            
-        StartCoroutine(LoadMainMenuAfterDelay(5f));
     }
 
     void GameOverTimeout()
@@ -804,19 +745,9 @@ public class TabletReceiver : MonoBehaviour
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
         
-        ShowMaxDialog("Please excuse us, but you did not meet our basic security quota asked by the company to each employee.\nWe will sadly have to send a security team to evacuate you.");
-        GameData.win = false;
-
-        if (AudioManager.Instance != null)
-            StartCoroutine(Speak("", "gameOverTimeout"));
-            
+        StartCoroutine(GameOverSequence("Please excuse us, but you did not meet our basic security quota asked by the company to each employee.\nWe will sadly have to send a security team to evacuate you.", "gameOverTimeout", false));
+        
         Debug.Log("💀 GAME OVER - Timeout");
-        GameData.win = false;
-
-        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
-            UIManager.Instance.UiEye.EndingEye(false);
-            
-        StartCoroutine(LoadMainMenuAfterDelay(3f));
     }
 
     void GameOverTouch()
@@ -835,7 +766,6 @@ public class TabletReceiver : MonoBehaviour
         }
         
         ShowMaxDialog("Stop touching everything! Security has been alerted!");
-        UIManager.Instance.win = false;
 
         Debug.Log($"💀 GAME OVER - Touch limit ({touchCount} touches)");
         
@@ -843,6 +773,18 @@ public class TabletReceiver : MonoBehaviour
             UIManager.Instance.UiEye.EndingEye(false);
             
         StartCoroutine(LoadMainMenuAfterDelay(5f));
+    }
+
+    IEnumerator GameOverSequence(string text, string audioClip, bool happy)
+    {
+        yield return StartCoroutine(Speak(text, audioClip));
+        
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.EndingEye(happy);
+        
+        yield return new WaitForSeconds(3f);
+        
+        UnityEngine.SceneManagement.SceneManager.LoadScene("UI_MainEnd");
     }
 
     public void AddSuspicion(float amount = 1f)
@@ -872,13 +814,32 @@ public class TabletReceiver : MonoBehaviour
         if (currentState == GameState.Playing)
         {
             int completed = 0;
-            if (keyCompleted) completed++;
             if (umbrellaCompleted) completed++;
             if (ballCompleted) completed++;
-            if (codeUVCompleted) completed++;
             if (mazeCompleted) completed++;
             if (codeCompleted) completed++;
-            if (captchaCompleted) completed++;
         }
+    }
+
+    void OnGUI()
+    {
+        float currentTimer = UIManager.Instance != null ? UIManager.Instance.currentTimer : 0f;
+        float maxTimer = UIManager.Instance != null ? UIManager.Instance.loseTimer : 900f;
+        
+        GUI.Label(new Rect(10, 10, 400, 240),
+            $"<size=16><color=white>" +
+            $"État: {currentState}\n" +
+            $"Timer: {currentTimer:F1}s / {maxTimer}s\n" +
+            $"Umbrella: {umbrellaCompleted}\n" +
+            $"Ball: {ballCompleted}\n" +
+            $"Maze: {mazeCompleted}\n" +
+            $"Code: {codeCompleted}\n" +
+            $"Touch: {touchCount}/{maxTouchBeforeGameOver}\n" +
+            $"Suspicion: {suspicious:F1}/{maxSuspicious}\n" +
+            $"Q1: {question1Asked} | Q2: {question2Asked}\n" +
+            $"Q3: {question3Asked} | Q4: {question4Asked}\n" +
+            $"Q5: {question5Asked}\n" +
+            $"Is Speaking: {isSpeaking}" +
+            $"</color></size>");
     }
 }

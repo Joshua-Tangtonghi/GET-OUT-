@@ -33,6 +33,7 @@ namespace _project.Scripts.UiManagers
             cAnim.SetTrigger("Win");
             gWin.SetActive(true);
             gLose.SetActive(false);
+            new WaitForSeconds(cAnim.GetCurrentAnimatorStateInfo(0).length);
         }
         public void Lose()
         {
