@@ -17,50 +17,36 @@ public class PCController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            PushFlag("key.flag");
-            statusText.text = "énigme clé envoyée !";
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
             PushFlag("umbrella.flag");
             statusText.text = "énigme parapluie envoyée !";
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+        if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             PushFlag("ball.flag");
             statusText.text = "énigme balle envoyée !";
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            PushFlag("codeUV.flag");
-            statusText.text = "énigme code UV envoyée !";
-        }
 
-        if (Input.GetKeyDown(KeyCode.Alpha5))
+        if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             PushFlag("maze.flag");
             statusText.text = "énigme labyrinthe envoyée !";
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha6))
+        if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             PushFlag("code.flag");
             statusText.text = "énigme code envoyée !";
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-        {
-            PushFlag("captcha.flag");
-            statusText.text = "énigme captcha envoyée !";
-        }
-
         if (Input.GetKeyDown(KeyCode.R))
         {
             ResetFlags();
-            statusText.text = "🔄 Flags réinitialisés";
+            statusText.text = "drapeau clé envoyé !";
+        }
+
+        {
         }
     }
 
@@ -71,20 +57,23 @@ public class PCController : MonoBehaviour
         File.WriteAllText(tempPath, "1"); // contenu optionnel
 
         // Pousser dans le dossier persistentDataPath de l'app sur la tablette
-        string androidPath = $"/storage/emulated/0/Android/data/com.UnityTechnologies.com.unity.template.urpblank/files/{fileName}";
+        string androidPath =
+            $"/storage/emulated/0/Android/data/com.UnityTechnologies.com.unity.template.urpblank/files/{fileName}";
         ExecuteADB($"push \"{tempPath}\" {androidPath}");
     }
 
     void ResetFlags()
     {
-        string[] flags = { "key.flag", "umbrella.flag", "ball.flag", "codeUV.flag", "maze.flag", "code.flag", "captcha.flag" };
+        string[] flags =
+            { "key.flag", "umbrella.flag", "ball.flag", "codeUV.flag", "maze.flag", "code.flag", "captcha.flag" };
         foreach (var flag in flags)
         {
             string tempPath = Path.Combine(Application.temporaryCachePath, flag);
             if (File.Exists(tempPath))
                 File.Delete(tempPath);
 
-            string androidPath = $"/storage/emulated/0/Android/data/com.UnityTechnologies.com.unity.template.urpblank/files/{flag}";
+            string androidPath =
+                $"/storage/emulated/0/Android/data/com.UnityTechnologies.com.unity.template.urpblank/files/{flag}";
             ExecuteADB($"shell rm {androidPath}");
         }
     }
@@ -94,7 +83,8 @@ public class PCController : MonoBehaviour
         try
         {
             // Chemin relatif vers adb
-            string adbPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "platform-tools", "adb.exe");
+            string adbPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "platform-tools",
+                "adb.exe");
 
             if (!File.Exists(adbPath))
             {
