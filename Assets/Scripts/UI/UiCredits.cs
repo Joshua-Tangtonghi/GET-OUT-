@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace _project.Scripts.UiManagers
@@ -8,6 +9,8 @@ namespace _project.Scripts.UiManagers
         private Animator cAnim;
         public GameObject gWin;
         public GameObject gLose;
+        private Animator winAnim;
+        private Animator loseAnim;
 
         private void Start()
         {
@@ -19,10 +22,13 @@ namespace _project.Scripts.UiManagers
             {
                 Lose();
             }
+            StartCoroutine(CreditsFalse());
         }
         private void Awake()
         {
             cAnim = GetComponent<Animator>();
+            winAnim = gWin.GetComponentInChildren<Animator>();
+            loseAnim = gLose.GetComponentInChildren<Animator>();
         }
         private void OnEnable()
         {
@@ -32,14 +38,21 @@ namespace _project.Scripts.UiManagers
         {
             cAnim.SetTrigger("Win");
             gWin.SetActive(true);
-            gLose.SetActive(false);
-            new WaitForSeconds(cAnim.GetCurrentAnimatorStateInfo(0).length);
+            winAnim.SetInteger("Mood",1);
+            winAnim.SetBool("End",false);
         }
         public void Lose()
         {
             cAnim.SetTrigger("Lose");
-            gWin.SetActive(true );
-            gLose.SetActive(false);
+            gLose.SetActive(true);
+            winAnim.SetInteger("Mood", -1);
+            loseAnim.SetBool("End", false);
+        }
+
+        IEnumerator CreditsFalse()
+        {
+           yield return new WaitForSeconds(5f);
+            cAnim.SetBool("Credits", false);
         }
     }
     
