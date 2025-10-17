@@ -683,7 +683,7 @@ public class TabletReceiver : MonoBehaviour
         yield return StartCoroutine(Speak("Super! I feel like you're ready to climb the career ladder! Keep going!", "end"));
         
         Debug.Log("🎉 GAME WIN !");
-        
+        GameData.win = true;
         if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
             UIManager.Instance.UiEye.HappyEye();
             
@@ -719,6 +719,7 @@ public class TabletReceiver : MonoBehaviour
         StartCoroutine(GameOverSequence("An intruder has been detected in front of our grand company D.O.O.R.H. Please do not panic,\nour teams will take care of it. Stay close to your station post and keep serving our society.", "gameOverSuspicion", false));
         
         Debug.Log("💀 GAME OVER - Suspicion");
+        GameData.win = false;
     }
 
     void GameOverTimeout()
@@ -748,6 +749,7 @@ public class TabletReceiver : MonoBehaviour
         StartCoroutine(GameOverSequence("Please excuse us, but you did not meet our basic security quota asked by the company to each employee.\nWe will sadly have to send a security team to evacuate you.", "gameOverTimeout", false));
         
         Debug.Log("💀 GAME OVER - Timeout");
+        GameData.win = false;
     }
 
     void GameOverTouch()
@@ -768,7 +770,8 @@ public class TabletReceiver : MonoBehaviour
         ShowMaxDialog("Stop touching everything! Security has been alerted!");
 
         Debug.Log($"💀 GAME OVER - Touch limit ({touchCount} touches)");
-        
+        GameData.win = false;
+
         if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
             UIManager.Instance.UiEye.EndingEye(false);
             

@@ -37,14 +37,12 @@ namespace _project.Scripts.UiManagers
         public void Win()
         {
             cAnim.SetTrigger("Win");
-            gWin.SetActive(true);
             winAnim.SetInteger("Mood",1);
             winAnim.SetBool("End",false);
         }
         public void Lose()
         {
             cAnim.SetTrigger("Lose");
-            gLose.SetActive(true);
             winAnim.SetInteger("Mood", -1);
             loseAnim.SetBool("End", false);
         }
