@@ -975,25 +975,25 @@ public class TabletReceiver : MonoBehaviour
         }
     }
 
-    void OnGUI()
-    {
-        float currentTimer = UIManager.Instance != null ? UIManager.Instance.currentTimer : 0f;
-        float maxTimer = UIManager.Instance != null ? UIManager.Instance.loseTimer : 900f;
-        
-        GUI.Label(new Rect(10, 10, 400, 260),
-            $"<size=16><color=white>" +
-            $"État: {currentState}\n" +
-            $"Timer: {currentTimer:F1}s / {maxTimer}s\n" +
-            $"Umbrella: {umbrellaCompleted}\n" +
-            $"Ball: {ballCompleted}\n" +
-            $"Maze: {mazeCompleted}\n" +
-            $"Code: {codeCompleted}\n" +
-            $"Touch: {touchCount}/{maxTouchBeforeGameOver}\n" +
-            $"Suspicion: {suspicious:F1}/{maxSuspicious}\n" +
-            $"Q1: {question1Asked} | Q2: {question2Asked}\n" +
-            $"Q3: {question3Asked} | Q4: {question4Asked}\n" +
-            $"Q5: {question5Asked} | Q6: {question6Asked}\n" +
-            $"Is Speaking: {isSpeaking}" +
-            $"</color></size>");
-    }
+    // void OnGUI()
+    // {
+    //     float currentTimer = UIManager.Instance != null ? UIManager.Instance.currentTimer : 0f;
+    //     float maxTimer = UIManager.Instance != null ? UIManager.Instance.loseTimer : 900f;
+    //     
+    //     GUI.Label(new Rect(10, 10, 400, 260),
+    //         $"<size=16><color=white>" +
+    //         $"État: {currentState}\n" +
+    //         $"Timer: {currentTimer:F1}s / {maxTimer}s\n" +
+    //         $"Umbrella: {umbrellaCompleted}\n" +
+    //         $"Ball: {ballCompleted}\n" +
+    //         $"Maze: {mazeCompleted}\n" +
+    //         $"Code: {codeCompleted}\n" +
+    //         $"Touch: {touchCount}/{maxTouchBeforeGameOver}\n" +
+    //         $"Suspicion: {suspicious:F1}/{maxSuspicious}\n" +
+    //         $"Q1: {question1Asked} | Q2: {question2Asked}\n" +
+    //         $"Q3: {question3Asked} | Q4: {question4Asked}\n" +
+    //         $"Q5: {question5Asked} | Q6: {question6Asked}\n" +
+    //         $"Is Speaking: {isSpeaking}" +
+    //         $"</color></size>");
+    // }
 }
