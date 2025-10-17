@@ -23,6 +23,7 @@ namespace _project.Scripts.UiManagers
                 Lose();
             }
             StartCoroutine(CreditsFalse());
+            StartCoroutine(EYE());
         }
         private void Awake()
         {
@@ -37,13 +38,11 @@ namespace _project.Scripts.UiManagers
         public void Win()
         {
             cAnim.SetTrigger("Win");
-            winAnim.SetInteger("Mood",1);
             winAnim.SetBool("End",false);
         }
         public void Lose()
         {
             cAnim.SetTrigger("Lose");
-            winAnim.SetInteger("Mood", -1);
             loseAnim.SetBool("End", false);
         }
 
@@ -51,6 +50,14 @@ namespace _project.Scripts.UiManagers
         {
            yield return new WaitForSeconds(5f);
             cAnim.SetBool("Credits", false);
+        }
+        IEnumerator EYE()
+        {
+            yield return new WaitForSeconds(13f);
+            if (GameData.win)
+                winAnim.SetInteger("Mood", 1);
+            else
+                winAnim.SetInteger("Mood", -1);
         }
     }
     
