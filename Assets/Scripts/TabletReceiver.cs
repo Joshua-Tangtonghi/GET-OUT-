@@ -58,6 +58,7 @@ public class TabletReceiver : MonoBehaviour
     private bool question3Asked = false;
     private bool question4Asked = false;
     private bool question5Asked = false;
+    private bool question6Asked = false;
 
     private int currentCorrectAnswer = -1;
     private int lastAnswer = -1;
@@ -114,6 +115,11 @@ public class TabletReceiver : MonoBehaviour
 
         if (!string.IsNullOrEmpty(text))
         {
+            // S'assurer que le panel est visible avant d'afficher le texte
+            if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
+            {
+                UIManager.Instance.UiPanelText.PanelTextVisibility(true);
+            }
             ShowMaxDialog(text);
         }
 
@@ -162,7 +168,7 @@ public class TabletReceiver : MonoBehaviour
         Debug.Log("⏱️ Timer démarré via UIManager APRÈS l'intro");
         
         // Démarrer le premier tip après tipsTime secondes
-        StartCoroutine(ShowTipAfterDelay(1, tipsTime));
+        StartCoroutine(ShowTipAfterDelay(3, tipsTime));
     }
 
     IEnumerator ShowTipAfterDelay(int tipNumber, float delay)
@@ -245,7 +251,6 @@ public class TabletReceiver : MonoBehaviour
         }
 
         HandleTouch();
-        CheckWinCondition();
 
         if (suspicious >= maxSuspicious)
         {
@@ -416,6 +421,11 @@ public class TabletReceiver : MonoBehaviour
                 question5Asked = true;
                 StartCoroutine(SpeakThenShowQuestion("", "question05", 5));
                 break;
+            case 6:
+                if (question6Asked) return;
+                question6Asked = true;
+                StartCoroutine(SpeakThenFinalQuestion("", "Trial05", 6));
+                break;
         }
     }
 
@@ -430,6 +440,7 @@ public class TabletReceiver : MonoBehaviour
             case 3: AskQuestion3(); break;
             case 4: AskQuestion4(); break;
             case 5: AskQuestion5(); break;
+            case 6: AskQuestion6(); break;
         }
     }
 
@@ -550,11 +561,11 @@ public class TabletReceiver : MonoBehaviour
         }
     }
 
-    void AskQuestion5()
+   void AskQuestion5()
     {
         if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
             UIManager.Instance.UiEye.NeutralEye();
-        Debug.Log("=== AskQuestion5 START (FINAL QUESTION) ===");
+        Debug.Log("=== AskQuestion5 START ===");
         
         currentState = GameState.WaitingForAnswer;
         currentCorrectAnswer = 3; // "Please don't"
@@ -572,6 +583,36 @@ public class TabletReceiver : MonoBehaviour
             questionPanel.SetQuestion("In the hole, if you put your hand in it, do you think you risk being electrocuted?");
             
             string[] answers = { "Yes", "No", "Maybe", "Please don't" };
+            questionPanel.SetButtonsText(answers);
+            
+            questionPanel.ButtonPanelVisibility(true);
+        }
+        
+        Debug.Log("⚠️ Question 5 posée - Après réponse correcte → Question 6");
+    }
+
+    void AskQuestion6()
+    {
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.NeutralEye();
+        Debug.Log("=== AskQuestion6 START (FINAL QUESTION - Trial05) ===");
+        
+        currentState = GameState.WaitingForAnswer;
+        currentCorrectAnswer = 2; // À définir selon la bonne réponse
+        lastAnswer = -1;
+        
+        if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
+        {
+            UIManager.Instance.UiPanelText.PanelTextVisibility(false);
+        }
+        
+        if (questionPanel != null)
+        {
+            questionPanel.gameObject.SetActive(true);
+            questionPanel.ResetAnswer();
+            questionPanel.SetQuestion("What object IS in the hole between these choices:");
+            
+            string[] answers = { "A efgece", "B efhzhf", "C ehfzihdfp", "D erfihzofj" };
             questionPanel.SetButtonsText(answers);
             
             questionPanel.ButtonPanelVisibility(true);
@@ -622,8 +663,8 @@ public class TabletReceiver : MonoBehaviour
 
         }
         
-        // Si c'est la question 5 (dernière question), déclencher la victoire
-        if (question5Asked && isCorrect)
+        // Si c'est la question 6 (dernière question), déclencher la victoire
+        if (question6Asked && isCorrect)
         {
             StartCoroutine(ReturnToPlayingThenWin(1f));
         }
@@ -660,15 +701,7 @@ public class TabletReceiver : MonoBehaviour
         GameWin();
     }
 
-    void CheckWinCondition()
-    {
-        // La victoire est maintenant déclenchée uniquement après la réponse à la question 5
-        // Cette fonction reste pour compatibilité mais n'est plus utilisée pour gagner
-        if (umbrellaCompleted && ballCompleted && mazeCompleted && codeCompleted)
-        {
-            Debug.Log("✅ Tous les flags complétés ! En attente de la question 5...");
-        }
-    }
+   
 
     void GameWin()
     {
@@ -777,7 +810,7 @@ public class TabletReceiver : MonoBehaviour
         {
             UIManager.Instance.StopTimer();
             if (UIManager.Instance.UiTimer != null)
-            {
+            {   
                 UIManager.Instance.UiTimer.TimerVisibility(false);
             }
         }
@@ -822,6 +855,8 @@ public class TabletReceiver : MonoBehaviour
     {
         if (maxDialogText && UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
         {
+            // S'assurer que le panel est visible avant d'appeler SetPanelText
+            UIManager.Instance.UiPanelText.PanelTextVisibility(true);
             string textF = UIManager.Instance.UiPanelText.SetPanelText(text, 0.05f);
             maxDialogText.text = "MAX: " + textF;
         }
@@ -838,26 +873,25 @@ public class TabletReceiver : MonoBehaviour
             if (codeCompleted) completed++;
         }
     }
-
-    void OnGUI()
-    {
-        float currentTimer = UIManager.Instance != null ? UIManager.Instance.currentTimer : 0f;
-        float maxTimer = UIManager.Instance != null ? UIManager.Instance.loseTimer : 900f;
-        
-        GUI.Label(new Rect(10, 10, 400, 240),
-            $"<size=16><color=white>" +
-            $"État: {currentState}\n" +
-            $"Timer: {currentTimer:F1}s / {maxTimer}s\n" +
-            $"Umbrella: {umbrellaCompleted}\n" +
-            $"Ball: {ballCompleted}\n" +
-            $"Maze: {mazeCompleted}\n" +
-            $"Code: {codeCompleted}\n" +
-            $"Touch: {touchCount}/{maxTouchBeforeGameOver}\n" +
-            $"Suspicion: {suspicious:F1}/{maxSuspicious}\n" +
-            $"Q1: {question1Asked} | Q2: {question2Asked}\n" +
-            $"Q3: {question3Asked} | Q4: {question4Asked}\n" +
-            $"Q5: {question5Asked}\n" +
-            $"Is Speaking: {isSpeaking}" +
-            $"</color></size>");
-    }
+    // void OnGUI()
+    // {
+    //     float currentTimer = UIManager.Instance != null ? UIManager.Instance.currentTimer : 0f;
+    //     float maxTimer = UIManager.Instance != null ? UIManager.Instance.loseTimer : 900f;
+    //     
+    //     GUI.Label(new Rect(10, 10, 400, 240),
+    //         $"<size=16><color=white>" +
+    //         $"État: {currentState}\n" +
+    //         $"Timer: {currentTimer:F1}s / {maxTimer}s\n" +
+    //         $"Umbrella: {umbrellaCompleted}\n" +
+    //         $"Ball: {ballCompleted}\n" +
+    //         $"Maze: {mazeCompleted}\n" +
+    //         $"Code: {codeCompleted}\n" +
+    //         $"Touch: {touchCount}/{maxTouchBeforeGameOver}\n" +
+    //         $"Suspicion: {suspicious:F1}/{maxSuspicious}\n" +
+    //         $"Q1: {question1Asked} | Q2: {question2Asked}\n" +
+    //         $"Q3: {question3Asked} | Q4: {question4Asked}\n" +
+    //         $"Q5: {question5Asked}\n" +
+    //         $"Is Speaking: {isSpeaking}" +
+    //         $"</color></size>");
+    // }
 }
