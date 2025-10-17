@@ -185,11 +185,11 @@ public class TabletReceiver : MonoBehaviour
         switch (tipNumber)
         {
             case 1:
-                tipMessage = "You...You're alright ? Hard to remember something so obvious ? Well I can understand... Or not. \nHow do want to open a lock without a key ?";
+                tipMessage = "You...You're alright ? Hard to remember something so obvious ? Well I can understand... Or not.How do want to open a lock without a key?";
                 audioClip = "tipsTrials01";
                 break;
             case 2:
-                tipMessage = "You know that an umbrella can get you to place much higher ?";
+                tipMessage = "You know that an umbrella can get you to place much higher?";
                 audioClip = "tipsTrials02";
                 break;
             case 3:
@@ -435,6 +435,8 @@ public class TabletReceiver : MonoBehaviour
 
     void AskQuestion1()
     {
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.NeutralEye();
         Debug.Log("=== AskQuestion1 START ===");
         
         currentState = GameState.WaitingForAnswer;
@@ -461,6 +463,8 @@ public class TabletReceiver : MonoBehaviour
 
     void AskQuestion2()
     {
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.NeutralEye();
         Debug.Log("=== AskQuestion2 START ===");
         
         currentState = GameState.WaitingForAnswer;
@@ -487,6 +491,8 @@ public class TabletReceiver : MonoBehaviour
 
     void AskQuestion3()
     {
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.NeutralEye();
         Debug.Log("=== AskQuestion3 START ===");
         
         currentState = GameState.WaitingForAnswer;
@@ -504,8 +510,8 @@ public class TabletReceiver : MonoBehaviour
             questionPanel.ResetAnswer();
             
             string questionPrefix = suspicious > 5f 
-                ? "Well well well, I think you're hiding things from us, answer to this! Just a little basic security investigation! *polite laugh* Nothing dangerous!\n\n"
-                : "Well, I would need to collect some information, just a quick satisfaction survey!\n\n";
+                ? "Well well well, I think you're hiding things from us, answer to this! Just a little basic security investigation! *polite laugh* Nothing dangerous!"
+                : "Well, I would need to collect some information, just a quick satisfaction survey!";
             
             questionPanel.SetQuestion(questionPrefix + "Who are you?");
             
@@ -518,6 +524,8 @@ public class TabletReceiver : MonoBehaviour
 
     void AskQuestion4()
     {
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.NeutralEye();
         Debug.Log("=== AskQuestion4 START ===");
         
         currentState = GameState.WaitingForAnswer;
@@ -544,6 +552,8 @@ public class TabletReceiver : MonoBehaviour
 
     void AskQuestion5()
     {
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.NeutralEye();
         Debug.Log("=== AskQuestion5 START (FINAL QUESTION) ===");
         
         currentState = GameState.WaitingForAnswer;
@@ -608,6 +618,8 @@ public class TabletReceiver : MonoBehaviour
         else
         {
             Debug.Log("✅ Bonne réponse !");
+            UIManager.Instance.UiEye.HappyEye();
+
         }
         
         // Si c'est la question 5 (dernière question), déclencher la victoire
@@ -715,6 +727,8 @@ public class TabletReceiver : MonoBehaviour
             
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.EndingEye(false);
         
         StartCoroutine(GameOverSequence("An intruder has been detected in front of our grand company D.O.O.R.H. Please do not panic,\nour teams will take care of it. Stay close to your station post and keep serving our society.", "gameOverSuspicion", false));
         
@@ -745,7 +759,8 @@ public class TabletReceiver : MonoBehaviour
             
         if (UIManager.Instance != null && UIManager.Instance.UiPanelText != null)
             UIManager.Instance.UiPanelText.PanelTextVisibility(true);
-        
+        if (UIManager.Instance != null && UIManager.Instance.UiEye != null)
+            UIManager.Instance.UiEye.EndingEye(false);
         StartCoroutine(GameOverSequence("Please excuse us, but you did not meet our basic security quota asked by the company to each employee.\nWe will sadly have to send a security team to evacuate you.", "gameOverTimeout", false));
         
         Debug.Log("💀 GAME OVER - Timeout");
